@@ -79,3 +79,17 @@ def normalize_column(value: object) -> str:
     """
 
     return re.sub(r"[^a-z0-9]+", "", str(value).strip().lower())  # Preserve the original source-column normalization regex
+
+
+def infer_label(columns: Sequence[str]) -> str:
+    """
+    Return the exact source header corresponding to the Label column.
+
+    :param columns: Ordered source CSV column names.
+    :return: Exact source header spelling for the label column.
+    """
+
+    for column in columns:  # Search headers in their original order
+        if normalize_column(column) == "label":  # Verify if the normalized header identifies the label field
+            return column  # Return the exact source header spelling for pandas usecols compatibility
+    raise ValueError(f"Could not find Label column in {list(columns)[:20]}")  # Preserve the original missing-label failure
