@@ -298,3 +298,23 @@ Training configuration:
 | Early-stopping monitor | `val_loss` |
 | `min_delta` | 0.001 |
 | Patience | 5 |
+
+## Sampling Profiles
+
+The project provides three explicit profiles because the exact original source-row sampling procedure is not published.
+
+### `cap-per-class`
+
+Used by `make run-mac` to bound memory use:
+
+```text
+MAC_SAMPLING_PROFILE=cap-per-class
+MAC_PER_CLASS_CAP=100000
+MAC_BATCH_SIZE=256
+```
+
+The cap is applied independently to each of the 12 target classes before the 70/30 split. Values can be overridden without editing source code:
+
+```bash
+make run-mac MAC_PER_CLASS_CAP=50000 MAC_BATCH_SIZE=128
+```
