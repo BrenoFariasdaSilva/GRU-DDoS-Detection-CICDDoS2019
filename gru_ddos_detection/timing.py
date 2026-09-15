@@ -129,3 +129,15 @@ class ETA:
         if detail:  # Verify if the caller provided an additional progress detail
             message += f" | {detail}"  # Append the detail with the original separator
         print(message, flush=True)  # Emit the progress line immediately
+
+
+def create_eta(label: str, total: float) -> ETA:
+    """
+    Create initialized generic ETA state without defining a custom underscore-prefixed initializer.
+
+    :param label: Stage label displayed in ETA messages.
+    :param total: Total expected work units for the stage.
+    :return: Initialized ETA state object.
+    """
+
+    return ETA(label=label, total=float(total), started=time.time(), last_print=0.0)  # Preserve original initial state and start timestamp
