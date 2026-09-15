@@ -140,3 +140,35 @@ def count_valid_rows(schemas: Sequence[FileSchema], root: Path, chunksize: int) 
         "valid_omitted_counts": dict(omitted),
         "files": file_reports,
     }  # Return global populations and the complete pass-one audit report
+
+
+def determine_quotas(counts: Counter[str], profile: str, per_class_cap: int) -> Dict[str, int]:
+    """
+    Determine per-class source sample quotas using the configured sampling profile.
+
+    :param counts: Available cleaned target-row populations by canonical class.
+    :param profile: Sampling profile name: figure6-inferred, cap-per-class, or all.
+    :param per_class_cap: Requested per-class cap used by cap-per-class mode.
+    :return: Actual per-class sampling quotas bounded by available populations.
+    """
+
+    quotas: Dict[str, int] = {}  # Build quotas in the published Figure 6(c) class order
+    for class_name in PAPER_FIGURE6_CLASSES:  # Process every required target class exactly once
+        available = int(counts.get(class_name, 0))  # Resolve cleaned source population for the current class
+        if available <= 0:  # Verify if the required class is absent after cleaning
+            raise RuntimeError(f"Required Figure-6 class {class_name!r} has zero valid source rows.")  # Preserve the original required-class failure
+        if profile == "figure6-inferred":  # Verify if quotas should follow Figure 6(c) support divided by 30%
+            desired = FIGURE6_INFERRED_CLASS_QUOTAS[class_name]  # Use the supplied inferred source quota
+        elif profile == "cap-per-class":  # Verify if a fixed per-class cap was requested
+            desired = per_class_cap  # Use the configured fixed cap
+        elif profile == "all":  # Verify if every cleaned source row should be retained
+            desired = available  # Request the complete cleaned class population
+        else:  # Handle unexpected profile values outside CLI validation
+            raise ValueError(profile)  # Preserve the original defensive profile failure
+        quotas[class_name] = min(available, desired)  # Bound the requested quota by rows actually available
+        if desired > available:  # Verify if the requested or inferred quota exceeds the cleaned source population
+            print(
+                f"[DATA] WARNING: {class_name}: inferred/requested {desired:,}, but only "
+                f"{available:,} valid rows are available; using all available."
+            )  # Preserve the original quota-shortfall warning
+    return quotas  # Return actual exact quotas for the second pass
