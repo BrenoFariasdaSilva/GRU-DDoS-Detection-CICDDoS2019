@@ -153,3 +153,28 @@ def build_callbacks(cfg: Config, run_dir: Path) -> List[tf.keras.callbacks.Callb
         tf.keras.callbacks.CSVLogger(str(run_dir / "training_history.csv")),
         create_epoch_eta(cfg.epochs),
     ]  # Preserve callback order: early stopping, best checkpoint, CSV history, then epoch ETA
+
+
+def fit_model(model: tf.keras.Model, train_dataset: tf.data.Dataset, validation_dataset: tf.data.Dataset, cfg: Config, device: str, callbacks: List[tf.keras.callbacks.Callback]) -> Tuple[Any, float]:
+    """
+    Fit the GRU model and return Keras history plus wall-clock training duration.
+
+    :param model: Compiled GRU Keras model.
+    :param train_dataset: Batched shuffled fit dataset.
+    :param validation_dataset: Batched validation dataset used for val_loss and early stopping.
+    :param cfg: Immutable experiment configuration containing maximum epoch count.
+    :param device: TensorFlow device selected for model execution.
+    :param callbacks: Ordered Keras callbacks for the fit operation.
+    :return: Keras History object and training duration in seconds.
+    """
+
+    started = time.time()  # Start wall-clock measurement immediately before model fitting
+    with tf.device(device):  # Preserve explicit training device placement
+        history = model.fit(
+            train_dataset,
+            validation_data=validation_dataset,
+            epochs=cfg.epochs,
+            callbacks=callbacks,
+            verbose=0,
+        )  # Preserve the original model.fit arguments and quiet built-in progress output
+    return history, time.time() - started  # Return fit history and original wall-clock training duration
