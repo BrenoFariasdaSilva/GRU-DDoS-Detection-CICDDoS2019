@@ -41,14 +41,18 @@ Assumptions & Notes:
 ================================================================================
 """
 
-import atexit  # For playing a sound when the program finishes
-import datetime  # For getting the current date and time
-import os  # For running a command in the terminal
-import platform  # For getting the operating system name
-import sys  # For system-specific parameters and functions
-from colorama import Style  # For coloring the terminal
-from Logger import Logger  # For logging output to both terminal and file
-from pathlib import Path  # For handling file paths
+from __future__ import annotations
+
+import atexit
+import datetime
+import platform
+import shutil
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+from Logger import Logger
 
 
 # Macros:
