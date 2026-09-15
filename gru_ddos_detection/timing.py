@@ -162,3 +162,15 @@ class EpochETA(tf.keras.callbacks.Callback):
         """
 
         self.started = time.time()  # Preserve training-start timing at the Keras callback boundary
+
+    def on_epoch_begin(self: "EpochETA", epoch: int, logs: Optional[Dict[str, Any]] = None) -> None:
+        """
+        Record the start time of one training epoch.
+
+        :param self: Current EpochETA callback instance.
+        :param epoch: Zero-based Keras epoch index.
+        :param logs: Optional Keras training log dictionary.
+        :return: None.
+        """
+
+        self.epoch_started = time.time()  # Start per-epoch wall-clock measurement
