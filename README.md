@@ -504,3 +504,45 @@ Important CLI controls include:
 | `--allow-cpu` | Permit execution without a detected TensorFlow GPU. |
 
 Run `python main.py --help` for all model and early-stopping options.
+
+## Generated Outputs
+
+The output root contains reproducibility, paper-audit, sampling, encoding, and aggregate artifacts such as:
+
+```text
+config.json
+environment.json
+reconstruction_assumptions.json
+paper_internal_consistency_audit.json
+published_top20_features.json
+raw_dataset_snapshot_before.json
+raw_dataset_snapshot_after.json
+source_csv_files.txt
+sampling_report.json
+encoded_sample_X.npy
+encoded_sample_y.npy
+runs_summary.csv
+aggregate_metrics.json
+derived_dataset/
+encoders/
+```
+
+Each run directory contains artifacts such as:
+
+```text
+train_indices.npy
+test_indices.npy
+validation_indices_within_train.npy   # holdout mode only
+standard_scaler_train.joblib
+standard_scaler_test.joblib           # separate mode only
+model_summary.txt
+best_model.keras
+training_history.csv
+test_class_support.json
+confusion_matrix.csv
+confusion_matrix.png
+classification_report.json
+metrics.json
+test_predictions.csv
+generated_dataset/
+```
