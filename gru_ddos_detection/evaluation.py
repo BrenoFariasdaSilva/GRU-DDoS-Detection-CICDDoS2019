@@ -1,49 +1,42 @@
 """
 ================================================================================
-<PROJECT OR SCRIPT TITLE>
+GRU DDOS DETECTION CICDDOS2019 HELD-OUT TEST EVALUATION AND ARTIFACTS
 ================================================================================
 Author      : Breno Farias da Silva
-Created     : <YYYY-MM-DD>
+Created     : 2026-09-14
 Description :
-    <Provide a concise and complete overview of what this script does.>
-    <Mention its purpose, scope, and relevance to the larger project.>
+    Performs batch-wise GRU prediction with ETA reporting, computes the supplied multi-class
+    metrics, and persists confusion, classification, metrics, and prediction artifacts.
 
     Key features include:
-        - <Feature 1 — e.g., automatic data loading and preprocessing>
-        - <Feature 2 — e.g., model training and evaluation>
-        - <Feature 3 — e.g., visualization or report generation>
-        - <Feature 4 — e.g., logging or notification system>
-        - <Feature 5 — e.g., integration with other modules or datasets>
+        - Predicts the final 30% test partition in explicit batches with ETA messages.
+        - Computes macro, weighted, and micro metrics plus distance to paper targets.
+        - Saves confusion matrix CSV/PNG, classification report JSON, metrics JSON, and predictions.
 
 Usage:
-    1. <Explain any configuration steps before running, such as editing variables or paths.>
-    2. <Describe how to execute the script — typically via Makefile or Python.>
-        $ make <target>   or   $ python <script_name>.py
-    3. <List what outputs are expected or where results are saved.>
+    1. Call predict_with_eta() on the trained best model and test dataset.
+    2. Compute scalar metrics with compute_metrics().
+    3. Persist final artifacts with persist_evaluation_artifacts().
 
 Outputs:
-    - <Output file or directory 1 — e.g., results.csv>
-    - <Output file or directory 2 — e.g., Feature_Analysis/plots/>
-    - <Output file or directory 3 — e.g., logs/output.txt>
+    - Per-run held-out test metrics, confusion artifacts, report JSON, and predictions CSV.
 
 TODOs:
-    - <Add a task or improvement — e.g., implement CLI argument parsing.>
-    - <Add another improvement — e.g., extend support to Parquet files.>
-    - <Add optimization — e.g., parallelize evaluation loop.>
-    - <Add robustness — e.g., error handling or data validation.>
+    - None identified.
 
 Dependencies:
-    - Python >= <version>
-    - <Library 1 — e.g., pandas>
-    - <Library 2 — e.g., numpy>
-    - <Library 3 — e.g., scikit-learn>
-    - <Library 4 — e.g., matplotlib, seaborn, tqdm, colorama>
+    - matplotlib.
+    - numpy.
+    - pandas.
+    - scikit-learn.
+    - tensorflow.
+    - Python standard library.
+    - gru_ddos_detection.constants, persistence, and timing.
 
 Assumptions & Notes:
-    - <List any key assumptions — e.g., last column is the target variable.>
-    - <Mention data format — e.g., CSV files only.>
-    - <Mention platform or OS-specific notes — e.g., sound disabled on Windows.>
-    - <Note on output structure or reusability.>
+    - Metric averaging conventions are intentionally all reported because the paper does not
+      specify which multiclass F1 convention produced its rounded Table 4 value.
+================================================================================
 """
 
 import atexit  # For playing a sound when the program finishes
