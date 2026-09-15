@@ -1,6 +1,6 @@
 <div align="center">
 
-# [GRU DDoS Detection on CICDDoS2019](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019) <img src="https://cdn.simpleicons.org/github" width="3%" height="3%">
+# [GRU-DDoS-Detection-CICDDoS2019](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019) <img src="https://cdn.simpleicons.org/github" width="3%" height="3%">
 
 </div>
 
@@ -27,7 +27,7 @@ A reproducible, memory-aware reconstruction of the paper's CICDDoS2019 multiclas
 ![GitHub Stars](https://img.shields.io/github/stars/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
 ![GitHub Contributors](https://img.shields.io/github/contributors/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
 ![GitHub Created At](https://img.shields.io/github/created-at/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
-![wakatime](https://wakatime.com/badge/github/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019svg)
+![wakatime](https://wakatime.com/badge/github/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019.svg)
 
 </div>
 
@@ -38,7 +38,7 @@ A reproducible, memory-aware reconstruction of the paper's CICDDoS2019 multiclas
 </div>
 
 ## Table of Contents
-- [GRU DDoS Detection on CICDDoS2019 ](#gru-ddos-detection-on-cicddos2019-)
+- [GRU-DDoS-Detection-CICDDoS2019 ](#gru-ddos-detection-cicddos2019-)
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Requirements](#requirements)
