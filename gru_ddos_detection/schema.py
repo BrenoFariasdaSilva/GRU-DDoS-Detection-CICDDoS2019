@@ -68,3 +68,14 @@ def normalize_token(value: object) -> str:
     """
 
     return re.sub(r"[^A-Z0-9]+", "", str(value).strip().upper())  # Preserve the original label token normalization regex
+
+
+def normalize_column(value: object) -> str:
+    """
+    Normalize a source column name to lowercase alphanumeric form.
+
+    :param value: Raw source-column value to normalize.
+    :return: Lowercase alphanumeric key used for header matching.
+    """
+
+    return re.sub(r"[^a-z0-9]+", "", str(value).strip().lower())  # Preserve the original source-column normalization regex
