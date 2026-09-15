@@ -194,3 +194,43 @@ def normalize_selected_chunk(chunk: pd.DataFrame, schema: FileSchema, mask: pd.S
             output[display] = pd.to_numeric(chunk.loc[mask, source], errors="coerce")  # Preserve numeric conversion used by the supplied implementation
     output["Label"] = labels.loc[mask].astype("string")  # Append canonical labels after the 20 selected features
     return output.reset_index(drop=True)  # Return compact zero-based sampled rows before CSV persistence
+
+
+def select_chunk_indices(valid_indices: np.ndarray, valid_labels: np.ndarray, remaining_population: Dict[str, int], remaining_need: Dict[str, int], selected_counts: Counter[str], rng: np.random.Generator) -> List[int]:
+    """
+    Select exact sampled source-row positions for one cleaned chunk using hypergeometric allocation.
+
+    :param valid_indices: Absolute positional indices of cleaned target rows within the chunk.
+    :param valid_labels: Canonical target labels aligned with valid_indices.
+    :param remaining_population: Mutable class populations not yet passed in the stream.
+    :param remaining_need: Mutable exact class quotas still required.
+    :param selected_counts: Mutable cumulative selected-row counter.
+    :param rng: NumPy random generator seeded for exact sampling.
+    :return: Absolute positional indices selected from the current chunk.
+    """
+
+    chosen_absolute: List[int] = []  # Collect current-chunk positional rows selected across all target classes
+    for class_name in PAPER_FIGURE6_CLASSES:  # Preserve the original deterministic target-class iteration order
+        local_positions = np.flatnonzero(valid_labels == class_name)  # Locate cleaned current-chunk rows belonging to this class
+        chunk_population = int(local_positions.size)  # Count current-chunk population for the class
+        if chunk_population == 0:  # Verify if the class has no rows in this chunk
+            continue  # Preserve RNG sequence by making no sampling calls for absent classes
+        remaining_total = remaining_population[class_name]  # Read class population remaining before the current chunk
+        remaining_quota = remaining_need[class_name]  # Read exact rows still required for this class
+        if remaining_total < chunk_population or remaining_quota > remaining_total:  # Verify internal exact-sampling bookkeeping invariants
+            raise RuntimeError(
+                f"Sampling bookkeeping failure for {class_name}: N={remaining_total} m={chunk_population} K={remaining_quota}"
+            )  # Preserve the original bookkeeping failure
+        if remaining_quota == 0:  # Verify if this class quota has already been fully satisfied
+            take_count = 0  # Select no additional rows without consuming RNG state
+        elif remaining_quota == remaining_total:  # Verify if every remaining row must be selected to meet the exact quota
+            take_count = chunk_population  # Select every class row in the current chunk without a hypergeometric draw
+        else:  # Handle the normal conditional exact-sampling case
+            take_count = int(rng.hypergeometric(chunk_population, remaining_total - chunk_population, remaining_quota))  # Preserve the exact hypergeometric draw and argument order
+        if take_count > 0:  # Verify if at least one row from this class must be selected in the current chunk
+            local_chosen = rng.choice(local_positions, size=take_count, replace=False)  # Preserve the original uniform without-replacement row choice
+            chosen_absolute.extend(valid_indices[local_chosen].tolist())  # Convert class-local positions back to absolute chunk positions
+            selected_counts[class_name] += take_count  # Accumulate selected rows for progress and reporting
+            remaining_need[class_name] -= take_count  # Decrease the exact quota remaining for this class
+        remaining_population[class_name] -= chunk_population  # Remove the complete observed chunk population from rows still unseen
+    return chosen_absolute  # Return all selected absolute positions for output persistence
