@@ -106,3 +106,23 @@ F1       = 0.9800
 ```
 
 The paper reports F1 as the rounded value `98%`; `0.9800` is the decimal representation used by the reproduction code, not an unrounded value published by the authors.
+
+## Paper Methodology
+
+The paper describes the following high-level methodology for the CICDDoS2019 recurrent experiments:
+
+1. Use CICDDoS2019 network-flow records.
+2. Remove records with missing/null values.
+3. Convert categorical values to numerical representations.
+4. Normalize inputs to zero mean and unit standard deviation.
+5. Use Extra Trees feature selection and retain the published top 20 features.
+6. Split the data into 70% training and 30% testing.
+7. Train recurrent deep-learning models.
+8. For the GRU configuration, use two GRU layers with 8 units per recurrent layer.
+9. Use two hidden layers with 16 and 8 neurons.
+10. Use ReLU in hidden layers and Softmax for multiclass output.
+11. Train with Adam, learning rate `0.001`, categorical cross-entropy, batch size `1000`, and up to `100` epochs.
+12. Stop early based on validation loss using `min_delta=0.001` and `patience=5`.
+13. Evaluate accuracy, precision, recall, F1, and confusion matrices.
+
+The paper does not explicitly define all implementation details required to replay those steps bit-for-bit; the next section documents how this repository resolves them.
