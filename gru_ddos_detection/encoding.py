@@ -104,3 +104,18 @@ def build_encoders(unique: Mapping[str, Set[str]], unique_labels: Set[str], out_
             f"Got {label_encoder.classes_.tolist()}"
         )  # Preserve the original class-order safety check
     return feature_encoders, label_encoder  # Return fitted encoders for sample-array construction
+
+
+def fit_sample_encoders(sample_gz: Path, chunksize: int, total_rows: int, out_dir: Path) -> Tuple[Dict[str, LabelEncoder], LabelEncoder]:
+    """
+    Collect sampled vocabularies, fit LabelEncoder objects, and persist them.
+
+    :param sample_gz: Compressed sampled selected-feature CSV path.
+    :param chunksize: Number of sampled rows read per pandas chunk.
+    :param total_rows: Expected total sampled row count.
+    :param out_dir: Directory receiving persisted encoder joblib files.
+    :return: Fitted categorical feature encoders and output label encoder.
+    """
+
+    unique, unique_labels = collect_vocabularies(sample_gz, chunksize, total_rows)  # Scan the sampled dataset for complete encoder vocabularies
+    return build_encoders(unique, unique_labels, out_dir)  # Fit, validate, persist, and return the encoder objects
