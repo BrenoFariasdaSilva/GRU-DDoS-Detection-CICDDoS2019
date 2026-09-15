@@ -1,49 +1,40 @@
 """
 ================================================================================
-<PROJECT OR SCRIPT TITLE>
+GRU DDOS DETECTION CICDDOS2019 SAMPLE ENCODING AND NUMPY CACHE CREATION
 ================================================================================
 Author      : Breno Farias da Silva
-Created     : <YYYY-MM-DD>
+Created     : 2026-09-14
 Description :
-    <Provide a concise and complete overview of what this script does.>
-    <Mention its purpose, scope, and relevance to the larger project.>
+    Fits categorical LabelEncoder objects on the compressed sampled dataset and encodes the
+    published top-20 features plus output labels into memory-mappable NumPy arrays.
 
     Key features include:
-        - <Feature 1 — e.g., automatic data loading and preprocessing>
-        - <Feature 2 — e.g., model training and evaluation>
-        - <Feature 3 — e.g., visualization or report generation>
-        - <Feature 4 — e.g., logging or notification system>
-        - <Feature 5 — e.g., integration with other modules or datasets>
+        - Collects complete sampled vocabularies for Timestamp, Flow ID, and output labels.
+        - Persists feature and output LabelEncoder objects with joblib.
+        - Streams encoded feature/label blocks into encoded_sample_X.npy and encoded_sample_y.npy.
 
 Usage:
-    1. <Explain any configuration steps before running, such as editing variables or paths.>
-    2. <Describe how to execute the script — typically via Makefile or Python.>
-        $ make <target>   or   $ python <script_name>.py
-    3. <List what outputs are expected or where results are saved.>
+    1. Call fit_sample_encoders() after sampled_selected_top20.csv.gz exists.
+    2. Call encode_sample_to_npy() with the fitted encoders.
+    3. Reuse the resulting .npy files with --reuse-cache on later executions.
 
 Outputs:
-    - <Output file or directory 1 — e.g., results.csv>
-    - <Output file or directory 2 — e.g., Feature_Analysis/plots/>
-    - <Output file or directory 3 — e.g., logs/output.txt>
+    - LabelEncoder joblib files and memory-mappable encoded NumPy sample arrays.
 
 TODOs:
-    - <Add a task or improvement — e.g., implement CLI argument parsing.>
-    - <Add another improvement — e.g., extend support to Parquet files.>
-    - <Add optimization — e.g., parallelize evaluation loop.>
-    - <Add robustness — e.g., error handling or data validation.>
+    - None identified.
 
 Dependencies:
-    - Python >= <version>
-    - <Library 1 — e.g., pandas>
-    - <Library 2 — e.g., numpy>
-    - <Library 3 — e.g., scikit-learn>
-    - <Library 4 — e.g., matplotlib, seaborn, tqdm, colorama>
+    - joblib.
+    - numpy.
+    - pandas.
+    - scikit-learn.
+    - Python standard library.
+    - gru_ddos_detection.constants, schema, and timing.
 
 Assumptions & Notes:
-    - <List any key assumptions — e.g., last column is the target variable.>
-    - <Mention data format — e.g., CSV files only.>
-    - <Mention platform or OS-specific notes — e.g., sound disabled on Windows.>
-    - <Note on output structure or reusability.>
+    - Categorical vocabulary collection and class-order validation preserve the supplied main.py.
+================================================================================
 """
 
 import atexit  # For playing a sound when the program finishes
