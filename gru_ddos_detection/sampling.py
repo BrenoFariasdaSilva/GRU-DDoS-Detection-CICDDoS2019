@@ -234,3 +234,28 @@ def select_chunk_indices(valid_indices: np.ndarray, valid_labels: np.ndarray, re
             remaining_need[class_name] -= take_count  # Decrease the exact quota remaining for this class
         remaining_population[class_name] -= chunk_population  # Remove the complete observed chunk population from rows still unseen
     return chosen_absolute  # Return all selected absolute positions for output persistence
+
+
+def write_selected_rows(gzip_handle: TextIO, chunk: pd.DataFrame, schema: FileSchema, labels: pd.Series, chosen_absolute: Sequence[int], wrote_header: bool) -> bool:
+    """
+    Write selected current-chunk rows to the compressed derived sample.
+
+    :param gzip_handle: Open text-mode gzip destination handle.
+    :param chunk: Current raw source chunk.
+    :param schema: Exact schema mapping for the current source CSV.
+    :param labels: Canonical labels aligned with the source chunk.
+    :param chosen_absolute: Absolute positional indices selected within the chunk.
+    :param wrote_header: Whether a CSV header has already been written to the destination.
+    :return: Updated header-written state.
+    """
+
+    if not chosen_absolute:  # Verify if this chunk contributed no sampled rows
+        return wrote_header  # Preserve header state without writing an empty frame
+    ordered_positions = sorted(chosen_absolute)  # Preserve original source-row order among selected positions before persistence
+    chosen_mask = pd.Series(False, index=chunk.index)  # Build a boolean mask aligned with the original chunk index
+    chosen_mask.iloc[ordered_positions] = True  # Mark each sampled positional row for normalization and writing
+    selected_labels = labels.copy()  # Preserve the original defensive label-series copy before normalization
+    normalized = normalize_selected_chunk(chunk, schema, chosen_mask, selected_labels)  # Convert sampled rows to canonical top-20 columns plus Label
+    normalized.to_csv(gzip_handle, index=False, header=not wrote_header)  # Append sampled rows and write the header only on the first non-empty chunk
+    del normalized, chosen_mask  # Release selected chunk materialization before continuing the raw scan
+    return True  # Record that the compressed sample now contains its header
