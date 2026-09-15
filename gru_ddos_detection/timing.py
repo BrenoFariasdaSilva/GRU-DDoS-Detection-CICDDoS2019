@@ -152,3 +152,13 @@ class EpochETA(tf.keras.callbacks.Callback):
     epoch_started: float
     process: psutil.Process
 
+    def on_train_begin(self: "EpochETA", logs: Optional[Dict[str, Any]] = None) -> None:
+        """
+        Record the start time of model training.
+
+        :param self: Current EpochETA callback instance.
+        :param logs: Optional Keras training log dictionary.
+        :return: None.
+        """
+
+        self.started = time.time()  # Preserve training-start timing at the Keras callback boundary
