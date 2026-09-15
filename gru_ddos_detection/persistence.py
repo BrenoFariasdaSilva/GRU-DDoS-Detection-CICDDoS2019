@@ -1,49 +1,35 @@
 """
 ================================================================================
-<PROJECT OR SCRIPT TITLE>
+GRU DDOS DETECTION CICDDOS2019 PERSISTENCE AND RAW-INTEGRITY UTILITIES
 ================================================================================
 Author      : Breno Farias da Silva
-Created     : <YYYY-MM-DD>
+Created     : 2026-09-14
 Description :
-    <Provide a concise and complete overview of what this script does.>
-    <Mention its purpose, scope, and relevance to the larger project.>
+    Provides JSON persistence and raw CICDDoS2019 metadata snapshot utilities used to keep
+    generated artifacts separate from the read-only source corpus.
 
     Key features include:
-        - <Feature 1 — e.g., automatic data loading and preprocessing>
-        - <Feature 2 — e.g., model training and evaluation>
-        - <Feature 3 — e.g., visualization or report generation>
-        - <Feature 4 — e.g., logging or notification system>
-        - <Feature 5 — e.g., integration with other modules or datasets>
+        - Writes UTF-8 JSON artifacts with stable indentation.
+        - Snapshots raw CSV sizes and nanosecond modification times recursively.
+        - Verifies that raw source metadata is unchanged after experiment execution.
 
 Usage:
-    1. <Explain any configuration steps before running, such as editing variables or paths.>
-    2. <Describe how to execute the script — typically via Makefile or Python.>
-        $ make <target>   or   $ python <script_name>.py
-    3. <List what outputs are expected or where results are saved.>
+    1. Use json_dump() for pipeline JSON artifacts.
+    2. Capture raw metadata with raw_snapshot() before and after execution.
+    3. Use verify_raw_snapshot() to reject runs where source metadata changed.
 
 Outputs:
-    - <Output file or directory 1 — e.g., results.csv>
-    - <Output file or directory 2 — e.g., Feature_Analysis/plots/>
-    - <Output file or directory 3 — e.g., logs/output.txt>
+    - JSON files requested by callers and raw-integrity verification messages.
 
 TODOs:
-    - <Add a task or improvement — e.g., implement CLI argument parsing.>
-    - <Add another improvement — e.g., extend support to Parquet files.>
-    - <Add optimization — e.g., parallelize evaluation loop.>
-    - <Add robustness — e.g., error handling or data validation.>
+    - None identified.
 
 Dependencies:
-    - Python >= <version>
-    - <Library 1 — e.g., pandas>
-    - <Library 2 — e.g., numpy>
-    - <Library 3 — e.g., scikit-learn>
-    - <Library 4 — e.g., matplotlib, seaborn, tqdm, colorama>
+    - Python standard library.
 
 Assumptions & Notes:
-    - <List any key assumptions — e.g., last column is the target variable.>
-    - <Mention data format — e.g., CSV files only.>
-    - <Mention platform or OS-specific notes — e.g., sound disabled on Windows.>
-    - <Note on output structure or reusability.>
+    - Raw integrity is based on source CSV size and mtime_ns, matching the supplied main.py.
+================================================================================
 """
 
 import atexit  # For playing a sound when the program finishes
