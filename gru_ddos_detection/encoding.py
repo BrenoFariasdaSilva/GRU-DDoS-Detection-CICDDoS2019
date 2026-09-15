@@ -140,3 +140,40 @@ def encode_feature_block(chunk: pd.DataFrame, feature_encoders: Mapping[str, Lab
                 raise RuntimeError(f"Non-finite value survived cleaning in {column}")  # Preserve the original defensive failure
             block[:, feature_index] = values  # Copy numeric feature values into the correct published feature column
     return block  # Return the encoded feature block aligned with current sampled rows
+
+
+def encode_sample_to_npy(sample_gz: Path, chunksize: int, total_rows: int, feature_encoders: Mapping[str, LabelEncoder], label_encoder: LabelEncoder, x_path: Path, y_path: Path) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Stream the compressed sampled dataset into memory-mappable encoded NumPy arrays.
+
+    :param sample_gz: Compressed sampled selected-feature CSV path.
+    :param chunksize: Number of sampled rows read per pandas chunk.
+    :param total_rows: Exact sampled row count expected in output arrays.
+    :param feature_encoders: Fitted categorical feature encoders.
+    :param label_encoder: Fitted canonical output label encoder.
+    :param x_path: Destination encoded feature .npy path.
+    :param y_path: Destination encoded integer-label .npy path.
+    :return: Read-only memory-mapped encoded feature and label arrays.
+    """
+
+    feature_memmap = np.lib.format.open_memmap(x_path, mode="w+", dtype=np.float32, shape=(total_rows, len(PAPER_TOP20)))  # Create disk-backed feature array with the original shape and dtype
+    label_memmap = np.lib.format.open_memmap(y_path, mode="w+", dtype=np.int16, shape=(total_rows,))  # Create disk-backed integer-label array
+    eta = create_eta("ENCODE", total_rows)  # Initialize the original encoding row-progress reporter
+    offset = 0  # Track the next destination row in both memory-mapped arrays
+    for chunk in pd.read_csv(sample_gz, chunksize=chunksize, low_memory=False):  # Stream sampled selected rows from compressed disk storage
+        row_count = len(chunk)  # Capture current sampled block size
+        block = encode_feature_block(chunk, feature_encoders)  # Encode the published top-20 features for this block
+        label_block = label_encoder.transform(chunk["Label"].astype("string")).astype(np.int16)  # Encode canonical output labels to the original int16 dtype
+        feature_memmap[offset:offset + row_count] = block  # Persist encoded features directly into the disk-backed array
+        label_memmap[offset:offset + row_count] = label_block  # Persist aligned encoded labels directly into the disk-backed array
+        offset += row_count  # Advance the destination position by rows written
+        eta.report(offset, f"rows={offset:,}/{total_rows:,}")  # Preserve the original encoding progress detail
+        del chunk, block, label_block  # Release sampled and encoded block objects before the next chunk
+        gc.collect()  # Preserve explicit garbage collection from the supplied implementation
+    if offset != total_rows:  # Verify if the encoded sample contains exactly the expected number of rows
+        raise RuntimeError(f"Encoded row count mismatch: expected {total_rows}, got {offset}")  # Preserve the original encoded-row mismatch failure
+    feature_memmap.flush()  # Flush pending feature-array writes to disk
+    label_memmap.flush()  # Flush pending label-array writes to disk
+    del feature_memmap, label_memmap  # Close writable memory-map objects before reopening read-only views
+    eta.report(total_rows, "encoded cache complete", force=True)  # Preserve the original forced encoding completion message
+    return np.load(x_path, mmap_mode="r"), np.load(y_path, mmap_mode="r")  # Reopen and return read-only memory-mapped caches exactly as supplied
