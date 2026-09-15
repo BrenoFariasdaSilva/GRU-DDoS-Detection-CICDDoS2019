@@ -141,3 +141,14 @@ def create_eta(label: str, total: float) -> ETA:
     """
 
     return ETA(label=label, total=float(total), started=time.time(), last_print=0.0)  # Preserve original initial state and start timestamp
+
+
+class EpochETA(tf.keras.callbacks.Callback):
+    """Report per-epoch training ETA, metrics, and process/system memory usage."""
+
+    total_epochs: int
+    started: float
+    epoch_times: List[float]
+    epoch_started: float
+    process: psutil.Process
+
