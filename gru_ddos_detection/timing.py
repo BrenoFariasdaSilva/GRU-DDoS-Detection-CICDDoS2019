@@ -174,3 +174,32 @@ class EpochETA(tf.keras.callbacks.Callback):
         """
 
         self.epoch_started = time.time()  # Start per-epoch wall-clock measurement
+
+    def on_epoch_end(self: "EpochETA", epoch: int, logs: Optional[Dict[str, Any]] = None) -> None:
+        """
+        Report completed-epoch duration, ETA, metrics, and memory usage.
+
+        :param self: Current EpochETA callback instance.
+        :param epoch: Zero-based Keras epoch index.
+        :param logs: Optional Keras training log dictionary.
+        :return: None.
+        """
+
+        duration = time.time() - self.epoch_started  # Compute the completed epoch duration
+        self.epoch_times.append(duration)  # Preserve the full epoch-duration history
+        average = float(np.mean(self.epoch_times[-5:]))  # Preserve the original rolling average over the last five epochs
+        remaining = max(self.total_epochs - (epoch + 1), 0)  # Calculate requested epochs remaining after this completion
+        eta = remaining * average  # Estimate remaining training duration from the rolling average
+        current_logs = logs or {}  # Preserve the original empty-dictionary fallback when Keras passes no logs
+        rss = self.process.memory_info().rss / 2**30  # Read current process resident memory in GiB
+        virtual_memory = psutil.virtual_memory()  # Read system-wide memory utilization
+        print(
+            f"[ETA][TRAIN] epoch={epoch+1}/{self.total_epochs} | "
+            f"epoch={format_seconds(duration)} | elapsed={format_seconds(time.time()-self.started)} | "
+            f"ETA={format_seconds(eta)} | loss={current_logs.get('loss', float('nan')):.6f} | "
+            f"acc={current_logs.get('accuracy', float('nan')):.6f} | "
+            f"val_loss={current_logs.get('val_loss', float('nan')):.6f} | "
+            f"val_acc={current_logs.get('val_accuracy', float('nan')):.6f} | "
+            f"RSS={rss:.2f}GiB system_used={virtual_memory.percent:.1f}%",
+            flush=True,
+        )  # Preserve the original epoch progress message fields and formatting
