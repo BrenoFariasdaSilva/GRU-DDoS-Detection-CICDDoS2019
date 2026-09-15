@@ -586,3 +586,32 @@ Because the publication does not state the multiclass F1 averaging convention, e
 
 1. M. Ramzan, M. Shoaib, A. Altaf, S. Arshad, F. Iqbal, Á. Kuc Castilla, and I. Ashraf, “Distributed Denial of Service Attack Detection in Network Traffic Using Deep Learning Algorithm,” *Sensors*, vol. 23, no. 20, article 8642, 2023. [https://doi.org/10.3390/s23208642](https://doi.org/10.3390/s23208642)
 2. Canadian Institute for Cybersecurity, University of New Brunswick, “DDoS 2019 (CICDDoS2019).” [https://www.unb.ca/cic/datasets/ddos-2019.html](https://www.unb.ca/cic/datasets/ddos-2019.html)
+
+## How to Cite
+
+If you use this repository, cite both the reproduction software and the original paper. The root [`main.bib`](main.bib) contains both entries.
+
+```bibtex
+@misc{farias2026gruddosdetection,
+  author       = {Breno Farias da Silva},
+  title        = {GRU DDoS Detection on CICDDoS2019},
+  year         = {2026},
+  howpublished = {GitHub},
+  url          = {https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019},
+  note         = {Reproduction implementation of the Ramzan et al. (2023) CICDDoS2019 multiclass GRU experiment}
+}
+
+@article{ramzan2023distributed,
+  author  = {Ramzan, Mahrukh and Shoaib, Muhammad and Altaf, Ayesha and Arshad, Shazia and Iqbal, Faiza and Castilla, {\'A}ngel Kuc and Ashraf, Imran},
+  title   = {Distributed Denial of Service Attack Detection in Network Traffic Using Deep Learning Algorithm},
+  journal = {Sensors},
+  volume  = {23},
+  number  = {20},
+  pages   = {8642},
+  year    = {2023},
+  doi     = {10.3390/s23208642},
+  url     = {https://doi.org/10.3390/s23208642}
+}
+```
+
+If you find the repository useful, consider starring it and opening issues or pull requests that improve reproducibility or documentation.
