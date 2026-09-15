@@ -1,6 +1,6 @@
 <div align="center">
   
-# [Template-Project.](https://github.com/BrenoFariasdaSilva/Template-Project) <img src="https://github.com/BrenoFariasdaSilva/Template-Project/blob/d4173c3b2249a77b6b1a223b86e801ea2042eddc/.assets/Icons/GitHub%20Colored%20Icon.svg"  width="3%" height="3%">
+# [GRU-DDoS-Detection-CICDDoS2019](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019) <img src="https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019/blob/d4173c3b2249a77b6b1a223b86e801ea2042eddc/.assets/Icons/GitHub%20Colored%20Icon.svg"  width="3%" height="3%">
 
 </div>
 
@@ -16,16 +16,16 @@ Project-Description.
 
 <div align="center">
 
-![GitHub Code Size in Bytes](https://img.shields.io/github/languages/code-size/BrenoFariasdaSilva/Template-Project)
-![GitHub Commits](https://img.shields.io/github/commit-activity/t/BrenoFariasdaSilva/Template-Project/main)
-![GitHub Last Commit](https://img.shields.io/github/last-commit/BrenoFariasdaSilva/Template-Project)
-![GitHub Forks](https://img.shields.io/github/forks/BrenoFariasdaSilva/Template-Project)
-![GitHub Language Count](https://img.shields.io/github/languages/count/BrenoFariasdaSilva/Template-Project)
-![GitHub License](https://img.shields.io/github/license/BrenoFariasdaSilva/Template-Project)
-![GitHub Stars](https://img.shields.io/github/stars/BrenoFariasdaSilva/Template-Project)
-![GitHub Contributors](https://img.shields.io/github/contributors/BrenoFariasdaSilva/Template-Project)
-![GitHub Created At](https://img.shields.io/github/created-at/BrenoFariasdaSilva/Template-Project)
-![wakatime](https://wakatime.com/badge/github/BrenoFariasdaSilva/Template-Project.svg)
+![GitHub Code Size in Bytes](https://img.shields.io/github/languages/code-size/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub Commits](https://img.shields.io/github/commit-activity/t/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019/main)
+![GitHub Last Commit](https://img.shields.io/github/last-commit/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub Forks](https://img.shields.io/github/forks/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub Language Count](https://img.shields.io/github/languages/count/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub License](https://img.shields.io/github/license/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub Stars](https://img.shields.io/github/stars/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub Contributors](https://img.shields.io/github/contributors/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub Created At](https://img.shields.io/github/created-at/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![wakatime](https://wakatime.com/badge/github/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019svg)
 
 </div>
 
@@ -36,7 +36,7 @@ Project-Description.
 </div>
 
 ## Table of Contents
-- [Template-Project. ](#template-project-)
+- [GRU-DDoS-Detection-CICDDoS2019 ](#gru-ddos-detection-cicddos2019-)
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Requirements](#requirements)
@@ -71,8 +71,8 @@ Bullet points of the requirements.
 1. Clone the repository with the following command:
 
    ```bash
-   git clone https://github.com/BrenoFariasdaSilva/Template-Project.git
-   cd Template-Project
+   git clone https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019git
+   cd GRU-DDoS-Detection-CICDDoS2019
    ```
 
 ## Installation:
@@ -112,7 +112,7 @@ Bullet points of the requirements.
 
 ### Dataset - Optional
 
-1. Download the dataset from [WEBSITE-HERE]() and place it in this project directory `(/Template-Project)` and run the following command:
+1. Download the dataset from [WEBSITE-HERE]() and place it in this project directory `(/GRU-DDoS-Detection-CICDDoS2019)` and run the following command:
 
    ```bash
    make dataset
