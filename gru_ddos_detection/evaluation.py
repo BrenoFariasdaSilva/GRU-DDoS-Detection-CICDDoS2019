@@ -148,3 +148,38 @@ def compute_metrics(y_test: np.ndarray, y_pred: np.ndarray, cfg: Config, run_ind
         "scaling_mode": cfg.scaling_mode,
         "stratify": cfg.stratify,
     }  # Preserve the supplied per-run metrics field names and meanings
+
+
+def persist_evaluation_artifacts(run_dir: Path, y_test: np.ndarray, y_pred: np.ndarray, probabilities: np.ndarray, metrics: Dict[str, object]) -> None:
+    """
+    Persist all final test evaluation artifacts for one experiment run.
+
+    :param run_dir: Current experiment run directory.
+    :param y_test: Integer ground-truth labels for the final test partition.
+    :param y_pred: Integer predicted labels aligned with y_test.
+    :param probabilities: Softmax probability matrix aligned with y_test.
+    :param metrics: Scalar metrics dictionary for the current run.
+    :return: None.
+    """
+
+    class_ids = np.arange(len(PAPER_FIGURE6_CLASSES))  # Build canonical integer class IDs in Figure 6(c) order
+    confusion = confusion_matrix(y_test, y_pred, labels=class_ids)  # Compute the complete 12-class confusion matrix
+    pd.DataFrame(confusion, index=PAPER_FIGURE6_CLASSES, columns=PAPER_FIGURE6_CLASSES).to_csv(run_dir / "confusion_matrix.csv")  # Persist raw confusion counts with canonical row/column labels
+    save_confusion(confusion, PAPER_FIGURE6_CLASSES, run_dir / "confusion_matrix.png")  # Persist the matching visual confusion matrix
+    report = classification_report(
+        y_test,
+        y_pred,
+        labels=class_ids,
+        target_names=PAPER_FIGURE6_CLASSES,
+        output_dict=True,
+        zero_division=0,
+    )  # Compute the same structured per-class classification report
+    json_dump(run_dir / "classification_report.json", report)  # Persist the structured classification report
+    json_dump(run_dir / "metrics.json", metrics)  # Persist scalar run metrics
+    pd.DataFrame({
+        "y_true": y_test,
+        "y_pred": y_pred,
+        "true_label": [PAPER_FIGURE6_CLASSES[class_id] for class_id in y_test],
+        "predicted_label": [PAPER_FIGURE6_CLASSES[class_id] for class_id in y_pred],
+        "predicted_probability": probabilities.max(axis=1),
+    }).to_csv(run_dir / "test_predictions.csv", index=False)  # Preserve the original per-observation prediction artifact columns and order
