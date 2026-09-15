@@ -95,3 +95,15 @@ def select_validation_data(X_train: np.ndarray, X_test: np.ndarray, y_train: np.
     np.save(run_dir / "validation_indices_within_train.npy", validation_indices, allow_pickle=False)  # Preserve within-training validation-index artifact
     print(f"[VALIDATION] rigorous holdout: fit={len(fit_indices):,}, val={len(validation_indices):,}, final_test={len(X_test):,}")  # Preserve the original rigorous validation message
     return X_fit, y_fit_onehot, X_validation, y_validation_onehot  # Return rigorous fit and validation arrays
+
+
+def write_model_summary_line(handle: TextIO, line: str) -> None:
+    """
+    Write one Keras model-summary line to the open text destination.
+
+    :param handle: Open text file receiving model-summary lines.
+    :param line: One model-summary line supplied by Keras.
+    :return: None.
+    """
+
+    handle.write(line + "\n")  # Preserve one newline after every Keras model-summary line
