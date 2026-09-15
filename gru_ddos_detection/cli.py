@@ -44,6 +44,26 @@ from .constants import PROJECT_ROOT
 # Functions Definitions:
 
 
+def enforce_output_inside_script_dir(output_dir: Path) -> Path:
+    """
+    Resolve and constrain generated output to the top-level main.py directory.
+
+    :param output_dir: User-provided output directory path.
+    :return: Resolved output directory inside the project root.
+    """
+
+    output = output_dir.resolve()  # Preserve the original current-working-directory resolution before project-root containment validation
+    try:  # Verify if the requested output remains inside the project root
+        output.relative_to(PROJECT_ROOT)  # Preserve the original containment requirement using the modular project root
+    except ValueError as exc:  # Handle output paths that escape the project root
+        raise ValueError(
+            f"--output-dir must be inside the directory containing main.py ({PROJECT_ROOT}). "
+            f"Requested: {output}"
+        ) from exc  # Preserve the original error semantics while referencing the correct top-level main.py directory
+    output.mkdir(parents=True, exist_ok=True)  # Preserve automatic output-directory creation
+    return output  # Return the resolved output directory
+
+
 def validate_args(args: argparse.Namespace) -> None:
     """
     Validate and normalize command-line arguments exactly as the supplied implementation.
