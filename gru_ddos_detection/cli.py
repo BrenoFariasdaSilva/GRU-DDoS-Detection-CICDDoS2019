@@ -1,49 +1,36 @@
 """
 ================================================================================
-<PROJECT OR SCRIPT TITLE>
+GRU DDOS DETECTION CICDDOS2019 COMMAND-LINE INTERFACE
 ================================================================================
 Author      : Breno Farias da Silva
-Created     : <YYYY-MM-DD>
+Created     : 2026-09-14
 Description :
-    <Provide a concise and complete overview of what this script does.>
-    <Mention its purpose, scope, and relevance to the larger project.>
+    Defines and validates the command-line interface for the GRU CICDDoS2019
+    reproduction while preserving the supplied main.py option names, defaults, and checks.
 
     Key features include:
-        - <Feature 1 — e.g., automatic data loading and preprocessing>
-        - <Feature 2 — e.g., model training and evaluation>
-        - <Feature 3 — e.g., visualization or report generation>
-        - <Feature 4 — e.g., logging or notification system>
-        - <Feature 5 — e.g., integration with other modules or datasets>
+        - Parses source-day, sampling, split, scaling, validation, and model options.
+        - Validates positive numeric arguments and dropout bounds.
+        - Constrains generated output to the directory containing the top-level main.py.
 
 Usage:
-    1. <Explain any configuration steps before running, such as editing variables or paths.>
-    2. <Describe how to execute the script — typically via Makefile or Python.>
-        $ make <target>   or   $ python <script_name>.py
-    3. <List what outputs are expected or where results are saved.>
+    1. Call parse_args() from the top-level orchestrator.
+    2. Call validate_args() before building Config.
+    3. Use the normalized data_dir and output_dir values stored back into the namespace.
 
 Outputs:
-    - <Output file or directory 1 — e.g., results.csv>
-    - <Output file or directory 2 — e.g., Feature_Analysis/plots/>
-    - <Output file or directory 3 — e.g., logs/output.txt>
+    - Parsed and validated command-line configuration values.
 
 TODOs:
-    - <Add a task or improvement — e.g., implement CLI argument parsing.>
-    - <Add another improvement — e.g., extend support to Parquet files.>
-    - <Add optimization — e.g., parallelize evaluation loop.>
-    - <Add robustness — e.g., error handling or data validation.>
+    - None identified.
 
 Dependencies:
-    - Python >= <version>
-    - <Library 1 — e.g., pandas>
-    - <Library 2 — e.g., numpy>
-    - <Library 3 — e.g., scikit-learn>
-    - <Library 4 — e.g., matplotlib, seaborn, tqdm, colorama>
+    - Python standard library.
+    - gru_ddos_detection.constants.
 
 Assumptions & Notes:
-    - <List any key assumptions — e.g., last column is the target variable.>
-    - <Mention data format — e.g., CSV files only.>
-    - <Mention platform or OS-specific notes — e.g., sound disabled on Windows.>
-    - <Note on output structure or reusability.>
+    - Relative output paths resolve from the current working directory and must remain inside the top-level main.py directory.
+================================================================================
 """
 
 import atexit  # For playing a sound when the program finishes
