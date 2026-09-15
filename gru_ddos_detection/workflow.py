@@ -1,49 +1,40 @@
 """
 ================================================================================
-<PROJECT OR SCRIPT TITLE>
+GRU DDOS DETECTION CICDDOS2019 COMPLETE REPRODUCTION WORKFLOW
 ================================================================================
 Author      : Breno Farias da Silva
-Created     : <YYYY-MM-DD>
+Created     : 2026-09-14
 Description :
-    <Provide a concise and complete overview of what this script does.>
-    <Mention its purpose, scope, and relevance to the larger project.>
+    Coordinates configuration persistence, paper audit metadata, raw-source integrity,
+    accelerator setup, two-pass sampling/cache preparation, repeated GRU runs, and aggregation.
 
     Key features include:
-        - <Feature 1 — e.g., automatic data loading and preprocessing>
-        - <Feature 2 — e.g., model training and evaluation>
-        - <Feature 3 — e.g., visualization or report generation>
-        - <Feature 4 — e.g., logging or notification system>
-        - <Feature 5 — e.g., integration with other modules or datasets>
+        - Preserves the supplied main.py execution order and artifact names.
+        - Reuses encoded_sample_X.npy/y.npy only when --reuse-cache is explicitly requested.
+        - Verifies the complete raw CSV metadata snapshot after all configured runs finish.
 
 Usage:
-    1. <Explain any configuration steps before running, such as editing variables or paths.>
-    2. <Describe how to execute the script — typically via Makefile or Python.>
-        $ make <target>   or   $ python <script_name>.py
-    3. <List what outputs are expected or where results are saved.>
+    1. Parse and validate arguments through gru_ddos_detection.cli.
+    2. Pass the validated namespace to run_workflow().
+    3. Inspect all generated artifacts below the configured project-local output directory.
 
 Outputs:
-    - <Output file or directory 1 — e.g., results.csv>
-    - <Output file or directory 2 — e.g., Feature_Analysis/plots/>
-    - <Output file or directory 3 — e.g., logs/output.txt>
+    - Configuration, paper audit, assumptions, environment, raw snapshots, sampling/encoding
+      caches, per-run artifacts, runs_summary.csv, and aggregate_metrics.json.
 
 TODOs:
-    - <Add a task or improvement — e.g., implement CLI argument parsing.>
-    - <Add another improvement — e.g., extend support to Parquet files.>
-    - <Add optimization — e.g., parallelize evaluation loop.>
-    - <Add robustness — e.g., error handling or data validation.>
+    - None identified.
 
 Dependencies:
-    - Python >= <version>
-    - <Library 1 — e.g., pandas>
-    - <Library 2 — e.g., numpy>
-    - <Library 3 — e.g., scikit-learn>
-    - <Library 4 — e.g., matplotlib, seaborn, tqdm, colorama>
+    - numpy.
+    - pandas.
+    - Python standard library.
+    - gru_ddos_detection audit, config, constants, encoding, experiment, persistence, sampling,
+      schema, system, and timing modules.
 
 Assumptions & Notes:
-    - <List any key assumptions — e.g., last column is the target variable.>
-    - <Mention data format — e.g., CSV files only.>
-    - <Mention platform or OS-specific notes — e.g., sound disabled on Windows.>
-    - <Note on output structure or reusability.>
+    - The output path has already been normalized and constrained by gru_ddos_detection.cli.
+================================================================================
 """
 
 import atexit  # For playing a sound when the program finishes
