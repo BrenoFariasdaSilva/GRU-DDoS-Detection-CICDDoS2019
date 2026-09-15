@@ -65,3 +65,20 @@ def raw_snapshot(root: Path) -> Dict[str, Dict[str, int]]:
             stat = path.stat()  # Read filesystem metadata without opening the CSV for writing
             snapshot[str(path.relative_to(root))] = {"size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)}  # Preserve the original integrity fields
     return snapshot  # Return the complete raw-source metadata snapshot
+
+
+def verify_raw_snapshot(before: Dict[str, Dict[str, int]], after: Dict[str, Dict[str, int]]) -> None:
+    """
+    Verify that raw CSV metadata is identical before and after execution.
+
+    :param before: Raw-source metadata captured before pipeline execution.
+    :param after: Raw-source metadata captured after pipeline execution.
+    :return: None.
+    """
+
+    if before != after:  # Verify if any raw CSV size, mtime, addition, or removal changed during execution
+        raise RuntimeError(
+            "RAW DATASET METADATA CHANGED DURING EXECUTION. The script itself only opens raw CSVs read-only; "
+            "investigate another process before trusting results."
+        )  # Preserve the original integrity failure message
+    print("[RAW] Verified: source CSV sizes and mtimes are unchanged.")  # Preserve the original successful integrity message
