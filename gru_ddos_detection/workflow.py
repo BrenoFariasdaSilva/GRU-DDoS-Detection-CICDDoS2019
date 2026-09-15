@@ -268,3 +268,29 @@ def run_all_experiments(cfg: Config, device: str, X: np.ndarray, y: np.ndarray, 
             f"| avg_run={format_seconds(average)} | remaining_ETA={format_seconds(eta_runs)}"
         )  # Preserve the original cross-run ETA message and fields
     return results  # Return per-run metrics for summary persistence
+
+
+def persist_aggregate_results(results: List[Dict[str, object]], output_dir: Path) -> Dict[str, object]:
+    """
+    Persist runs_summary.csv and aggregate_metrics.json using the supplied formulas.
+
+    :param results: Ordered per-run scalar metric dictionaries.
+    :param output_dir: Root generated-output directory.
+    :return: Aggregate metrics dictionary persisted to aggregate_metrics.json.
+    """
+
+    summary = pd.DataFrame(results)  # Preserve all per-run metric fields and their insertion order in the summary table
+    summary.to_csv(output_dir / "runs_summary.csv", index=False)  # Persist the original complete runs summary artifact
+    aggregate = {
+        "runs": len(results),
+        "accuracy_mean": float(summary["accuracy"].mean()),
+        "accuracy_std": float(summary["accuracy"].std(ddof=1)) if len(summary) > 1 else 0.0,
+        "f1_macro_mean": float(summary["f1_macro"].mean()),
+        "f1_macro_std": float(summary["f1_macro"].std(ddof=1)) if len(summary) > 1 else 0.0,
+        "f1_weighted_mean": float(summary["f1_weighted"].mean()),
+        "paper_target_accuracy": PAPER_TARGET_ACCURACY,
+        "paper_target_f1": PAPER_TARGET_F1,
+        "closest_accuracy_run": int(summary.loc[summary["distance_accuracy"].idxmin(), "run"]),
+    }  # Preserve the original aggregate fields and statistical formulas
+    json_dump(output_dir / "aggregate_metrics.json", aggregate)  # Persist aggregate metrics with the original JSON formatting helper
+    return aggregate  # Return aggregate metrics for final completion output
