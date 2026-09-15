@@ -118,3 +118,30 @@ def find_source_csvs(data_dir: Path, source_day: str) -> List[Path]:
     if not files:  # Verify if discovery produced at least one source CSV
         raise FileNotFoundError(f"No CSVs found for source day {source_day!r} under {data_dir}")  # Preserve the original discovery failure
     return files  # Return deterministic source ordering
+
+
+def inspect_schemas(files: Sequence[Path]) -> List[FileSchema]:
+    """
+    Read CSV headers and map every file onto the published top-20 feature names.
+
+    :param files: Ordered source CSV files to inspect.
+    :return: Ordered FileSchema objects for streamed processing.
+    """
+
+    schemas: List[FileSchema] = []  # Collect one validated schema per source CSV
+    wanted = {normalize_column(name): name for name in PAPER_TOP20}  # Build normalized lookup keys for every published selected feature
+    for path in files:  # Inspect each source CSV header without loading data rows
+        header = pd.read_csv(path, nrows=0)  # Read only column names from the current source file
+        raw_columns = [str(column) for column in header.columns]  # Preserve exact source header spellings
+        label = infer_label(raw_columns)  # Resolve the exact label header
+        by_key = {normalize_column(column): column for column in raw_columns if normalize_column(column)}  # Map normalized keys back to exact source headers
+        missing = [display for key, display in wanted.items() if key not in by_key]  # Identify any published selected features absent from this source file
+        if missing:  # Verify if the current source file lacks required published features
+            raise ValueError(f"{path.name} is missing published top-20 columns: {missing}")  # Preserve the original schema failure
+        selected = {display: by_key[key] for key, display in wanted.items()}  # Map canonical selected-feature names to exact source headers
+        validity = tuple(
+            column for column in raw_columns
+            if column != label and not normalize_column(column).startswith("unnamed")
+        )  # Preserve row-validity coverage across every non-index, non-label source field
+        schemas.append(FileSchema(path, label, selected, validity))  # Store the validated source schema
+    return schemas  # Return schemas in source-file order
