@@ -168,7 +168,7 @@ flowchart TD
     B --> C[PASS 1<br/>stream, clean, count valid class rows]
     C --> D{Sampling profile}
     D -->|cap-per-class| E[Bounded per-class sample]
-    D -->|figure6-inferred| F[Figure 6(c)-inferred quotas]
+    D -->|figure6-inferred| F["Figure 6(c)-inferred quotas"]
     D -->|all| G[Every cleaned target-class row]
     E --> H[PASS 2<br/>exact hypergeometric sampling]
     F --> H
