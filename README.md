@@ -261,3 +261,40 @@ The reproduction uses the 12 labels visible in the paper's GRU Figure 6(c):
 12. `UDP-lag`
 
 This class set is important because the prose class description in the publication is not perfectly aligned with the labels visible in the GRU confusion matrix. The reproduction follows the matrix labels for the target experiment.
+
+## GRU Architecture and Training
+
+The model implemented in `gru_ddos_detection/model.py` is:
+
+```text
+Input: (1 timestep, 20 features)
+        ↓
+GRU(8, activation=ReLU, recurrent_activation=sigmoid)
+return_sequences=True
+        ↓
+Dropout(0.10)
+        ↓
+GRU(8, activation=ReLU, recurrent_activation=sigmoid)
+return_sequences=False
+        ↓
+Dropout(0.10)
+        ↓
+Dense(16, ReLU)
+        ↓
+Dense(8, ReLU)
+        ↓
+Dense(12, Softmax)
+```
+
+Training configuration:
+
+| Parameter | Value |
+| --- | ---: |
+| Optimizer | Adam |
+| Learning rate | 0.001 |
+| Loss | Categorical cross-entropy |
+| Paper batch size | 1000 |
+| Maximum epochs | 100 |
+| Early-stopping monitor | `val_loss` |
+| `min_delta` | 0.001 |
+| Patience | 5 |
