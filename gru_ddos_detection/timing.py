@@ -203,3 +203,20 @@ class EpochETA(tf.keras.callbacks.Callback):
             f"RSS={rss:.2f}GiB system_used={virtual_memory.percent:.1f}%",
             flush=True,
         )  # Preserve the original epoch progress message fields and formatting
+
+
+def create_epoch_eta(total_epochs: int) -> EpochETA:
+    """
+    Create and initialize the Keras epoch ETA callback.
+
+    :param total_epochs: Maximum number of epochs requested for training.
+    :return: Initialized EpochETA callback instance.
+    """
+
+    callback = EpochETA()  # Instantiate through the inherited Keras Callback initializer
+    callback.total_epochs = total_epochs  # Store the requested maximum epoch count for ETA calculation
+    callback.started = 0.0  # Preserve the original pre-training start-time placeholder
+    callback.epoch_times = []  # Initialize completed epoch-duration history
+    callback.epoch_started = 0.0  # Preserve the original pre-epoch timestamp placeholder
+    callback.process = psutil.Process(os.getpid())  # Bind RSS reporting to the current process
+    return callback  # Return the fully initialized callback
