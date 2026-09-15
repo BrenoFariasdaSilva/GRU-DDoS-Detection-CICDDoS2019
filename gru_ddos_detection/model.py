@@ -79,3 +79,21 @@ def build_gru(cfg: Config, n_features: int, n_classes: int) -> tf.keras.Model:
         metrics=["accuracy"],
     )  # Preserve Adam, configured learning rate, categorical cross-entropy, and accuracy metric
     return model  # Return the compiled GRU model
+
+
+def make_dataset(X: np.ndarray, y_onehot: np.ndarray, batch: int, shuffle: bool, seed: int) -> tf.data.Dataset:
+    """
+    Build the bounded-prefetch TensorFlow dataset used for training or evaluation.
+
+    :param X: Model-ready recurrent feature array.
+    :param y_onehot: One-hot categorical label array aligned with X.
+    :param batch: Batch size for dataset iteration.
+    :param shuffle: Whether to shuffle with the original bounded buffer.
+    :param seed: Random seed for TensorFlow dataset shuffling.
+    :return: Batched tf.data.Dataset with one-batch prefetch.
+    """
+
+    dataset = tf.data.Dataset.from_tensor_slices((X, y_onehot))  # Create a tensor-slice dataset from aligned model inputs and categorical labels
+    if shuffle:  # Verify if the dataset is intended for model fitting
+        dataset = dataset.shuffle(min(len(X), 100_000), seed=seed, reshuffle_each_iteration=True)  # Preserve the original bounded shuffle buffer and reshuffling behavior
+    return dataset.batch(batch, drop_remainder=False).prefetch(1)  # Preserve complete final batches and one-batch prefetch
