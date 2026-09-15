@@ -125,3 +125,22 @@ def persist_generated_dataset(run_dir: Path, X_train: np.ndarray, X_test: np.nda
     np.save(generated / "X_test_standardized.npy", X_test, allow_pickle=False)  # Persist standardized test features
     np.save(generated / "y_train_ids.npy", y_train, allow_pickle=False)  # Persist integer training labels
     np.save(generated / "y_test_ids.npy", y_test, allow_pickle=False)  # Persist integer test labels
+
+
+def reshape_and_encode_labels(X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Reshape standardized features to one timestep and one-hot encode output labels.
+
+    :param X_train: Standardized two-dimensional training feature matrix.
+    :param X_test: Standardized two-dimensional test feature matrix.
+    :param y_train: Integer training labels.
+    :param y_test: Integer test labels.
+    :return: GRU train/test sequence arrays and float32 one-hot train/test labels.
+    """
+
+    X_train_sequence = X_train.reshape((len(X_train), 1, X_train.shape[1]))  # Preserve the inferred one-timestep recurrent input construction
+    X_test_sequence = X_test.reshape((len(X_test), 1, X_test.shape[1]))  # Apply the same one-timestep reshape to the final test partition
+    class_count = len(PAPER_FIGURE6_CLASSES)  # Preserve the fixed Figure 6(c) 12-class output size
+    y_train_onehot = tf.keras.utils.to_categorical(y_train, num_classes=class_count).astype(np.float32)  # Preserve categorical output encoding and dtype
+    y_test_onehot = tf.keras.utils.to_categorical(y_test, num_classes=class_count).astype(np.float32)  # Preserve categorical test-label encoding and dtype
+    return X_train_sequence, X_test_sequence, y_train_onehot, y_test_onehot  # Return model-ready recurrent features and categorical labels
