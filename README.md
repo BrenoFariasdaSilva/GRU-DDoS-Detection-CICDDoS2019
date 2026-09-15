@@ -337,3 +337,42 @@ Every cleaned target-class row from the selected `01-12` source day is retained.
 ```bash
 make run-linux LINUX_SAMPLING_PROFILE=figure6-inferred
 ```
+
+## Project Structure
+
+```text
+GRU-DDoS-Detection-CICDDoS2019/
+├── .assets/
+│   └── Sounds/
+│       └── NotificationSound.wav
+├── logs/
+│   └── .gitkeep
+├── .gitignore
+├── LICENSE
+├── Logger.py
+├── Makefile
+├── README.md
+├── main.bib
+├── main.py
+├── requirements.txt
+└── gru_ddos_detection/
+    ├── __init__.py
+    ├── audit.py
+    ├── cli.py
+    ├── config.py
+    ├── constants.py
+    ├── encoding.py
+    ├── evaluation.py
+    ├── experiment.py
+    ├── model.py
+    ├── persistence.py
+    ├── preprocessing.py
+    ├── sampling.py
+    ├── schema.py
+    ├── system.py
+    ├── tensorflow_runtime.py
+    ├── timing.py
+    └── workflow.py
+```
+
+`main.py` remains the orchestrator. It now configures the repository-root `Logger.py`, registers the bundled completion sound with `atexit`, parses and validates the CLI, and delegates to the package workflow. Dataset preparation, model construction, training, evaluation, and paper-audit logic remain modular.
