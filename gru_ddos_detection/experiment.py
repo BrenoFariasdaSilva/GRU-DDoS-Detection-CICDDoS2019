@@ -107,3 +107,20 @@ def write_model_summary_line(handle: TextIO, line: str) -> None:
     """
 
     handle.write(line + "\n")  # Preserve one newline after every Keras model-summary line
+
+
+def build_and_save_model(cfg: Config, device: str, run_dir: Path) -> tf.keras.Model:
+    """
+    Build the GRU model on the selected device and persist model_summary.txt.
+
+    :param cfg: Immutable experiment configuration.
+    :param device: TensorFlow device selected for model execution.
+    :param run_dir: Current run directory receiving model_summary.txt.
+    :return: Compiled GRU Keras model.
+    """
+
+    with tf.device(device):  # Preserve explicit model-construction device placement
+        model = build_gru(cfg, len(PAPER_TOP20), len(PAPER_FIGURE6_CLASSES))  # Build the same 20-feature, 12-class GRU network
+    with (run_dir / "model_summary.txt").open("w", encoding="utf-8") as handle:  # Open the original model summary artifact path
+        model.summary(print_fn=partial(write_model_summary_line, handle))  # Persist Keras model summary without an untyped lambda
+    return model  # Return the compiled model for dataset fitting
