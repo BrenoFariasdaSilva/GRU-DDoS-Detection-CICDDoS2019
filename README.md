@@ -1,15 +1,17 @@
 <div align="center">
 
-# [GRU-DDoS-Detection-CICDDoS2019](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019) <img src="https://cdn.simpleicons.org/github" width="3%" height="3%">
+# [GRU DDoS Detection on CICDDoS2019](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019) <img src="https://cdn.simpleicons.org/github" width="3%" height="3%">
 
 </div>
 
 <div align="center">
-  
+
 ---
 
-Project-Description.
-  
+**Methodology source:** Mahrukh Ramzan, Muhammad Shoaib, Ayesha Altaf, Shazia Arshad, Faiza Iqbal, Ángel Kuc Castilla, and Imran Ashraf, *Distributed Denial of Service Attack Detection in Network Traffic Using Deep Learning Algorithm* (2023), DOI: [10.3390/s23208642](https://doi.org/10.3390/s23208642).
+
+A reproducible, memory-aware reconstruction of the paper's CICDDoS2019 multiclass GRU experiment, organized for bounded Apple-Silicon runs and full-source Linux GPU execution. This repository is an independent reproduction and is not an official repository of the paper's authors.
+
 ---
 
 </div>
@@ -36,7 +38,7 @@ Project-Description.
 </div>
 
 ## Table of Contents
-- [GRU-DDoS-Detection-CICDDoS2019 ](#gru-ddos-detection-cicddos2019-)
+- [GRU DDoS Detection on CICDDoS2019 ](#gru-ddos-detection-on-cicddos2019-)
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Requirements](#requirements)
