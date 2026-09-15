@@ -77,3 +77,30 @@ def collect_vocabularies(sample_gz: Path, chunksize: int, total_rows: int) -> Tu
         gc.collect()  # Preserve explicit garbage collection from the supplied implementation
     eta.report(total_rows, "categorical vocabularies complete", force=True)  # Preserve the original forced completion report
     return unique, unique_labels  # Return complete sampled vocabularies for encoder fitting
+
+
+def build_encoders(unique: Mapping[str, Set[str]], unique_labels: Set[str], out_dir: Path) -> Tuple[Dict[str, LabelEncoder], LabelEncoder]:
+    """
+    Fit and persist categorical feature encoders and the output label encoder.
+
+    :param unique: Complete categorical feature vocabularies keyed by canonical feature name.
+    :param unique_labels: Complete canonical output-label vocabulary.
+    :param out_dir: Directory receiving persisted encoder joblib files.
+    :return: Fitted feature-encoder mapping and fitted output label encoder.
+    """
+
+    feature_encoders: Dict[str, LabelEncoder] = {}  # Collect one fitted LabelEncoder per categorical selected feature
+    for column in CATEGORICAL_SELECTED:  # Preserve iteration over the original categorical-feature set
+        encoder = LabelEncoder()  # Create the same scikit-learn categorical encoder type
+        encoder.fit(np.asarray(sorted(unique[column]), dtype=object))  # Fit on deterministically sorted sampled vocabulary values
+        feature_encoders[column] = encoder  # Store the fitted encoder by canonical feature name
+        joblib.dump(encoder, out_dir / f"label_encoder_{normalize_column(column)}.joblib")  # Preserve the original feature-encoder filename convention
+    label_encoder = LabelEncoder()  # Create the output class encoder
+    label_encoder.fit(np.asarray(sorted(unique_labels), dtype=object))  # Fit on deterministically sorted canonical output labels
+    joblib.dump(label_encoder, out_dir / "label_encoder_output.joblib")  # Preserve the original output-encoder filename
+    if tuple(label_encoder.classes_.tolist()) != PAPER_FIGURE6_CLASSES:  # Verify if encoded class IDs follow the Figure 6(c) order expected downstream
+        raise RuntimeError(
+            "Encoded class order differs from Figure 6 order. "
+            f"Got {label_encoder.classes_.tolist()}"
+        )  # Preserve the original class-order safety check
+    return feature_encoders, label_encoder  # Return fitted encoders for sample-array construction
