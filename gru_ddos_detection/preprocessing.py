@@ -144,3 +144,22 @@ def reshape_and_encode_labels(X_train: np.ndarray, X_test: np.ndarray, y_train: 
     y_train_onehot = tf.keras.utils.to_categorical(y_train, num_classes=class_count).astype(np.float32)  # Preserve categorical output encoding and dtype
     y_test_onehot = tf.keras.utils.to_categorical(y_test, num_classes=class_count).astype(np.float32)  # Preserve categorical test-label encoding and dtype
     return X_train_sequence, X_test_sequence, y_train_onehot, y_test_onehot  # Return model-ready recurrent features and categorical labels
+
+
+def split_and_scale(X: np.ndarray, y: np.ndarray, cfg: Config, run_index: int, run_dir: Path) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Execute per-run split, standardization, persistence, reshape, and one-hot encoding.
+
+    :param X: Complete encoded sampled feature matrix.
+    :param y: Complete encoded sampled integer-label vector.
+    :param cfg: Immutable experiment configuration.
+    :param run_index: One-based repeated-run index.
+    :param run_dir: Directory receiving split, scaler, and generated-data artifacts.
+    :return: GRU train/test features, integer train/test labels, and one-hot train/test labels.
+    """
+
+    X_train, X_test, y_train, y_test = split_run_arrays(X, y, cfg, run_index, run_dir)  # Perform and persist the original 70/30 split
+    X_train, X_test = standardize_run_arrays(X_train, X_test, cfg, run_dir)  # Apply configured standardization semantics and persist scaler objects
+    persist_generated_dataset(run_dir, X_train, X_test, y_train, y_test)  # Preserve standardized generated dataset copies before recurrent reshape
+    X_train_sequence, X_test_sequence, y_train_onehot, y_test_onehot = reshape_and_encode_labels(X_train, X_test, y_train, y_test)  # Build one-timestep GRU inputs and categorical outputs
+    return X_train_sequence, X_test_sequence, y_train, y_test, y_train_onehot, y_test_onehot  # Preserve the original function return contract
