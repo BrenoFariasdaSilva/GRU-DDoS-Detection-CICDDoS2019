@@ -156,3 +156,34 @@ def canonical_labels(series: pd.Series) -> pd.Series:
     """
 
     return series.astype("string").fillna("").map(normalize_token).map(BASE_LABEL_ALIASES)  # Preserve the original vectorized label canonicalization chain
+
+
+def row_validity_mask(chunk: pd.DataFrame, schema: FileSchema) -> pd.Series:
+    """
+    Build the original row-validity mask for one streamed source chunk.
+
+    :param chunk: Source CSV chunk containing validity and label columns.
+    :param schema: Exact source-column mapping for the current CSV file.
+    :return: Boolean Series identifying rows that survive cleaning.
+    """
+
+    validity = chunk.loc[:, list(schema.validity_cols)]  # Inspect every non-index, non-label source field for paper-aligned row removal
+    valid = ~validity.isna().any(axis=1)  # Reject rows containing pandas-recognized missing values
+    numeric_columns = list(validity.select_dtypes(include=[np.number]).columns)  # Identify already-numeric columns for efficient finite-value testing
+    if numeric_columns:  # Verify if any validity columns have numeric dtypes
+        numeric = validity[numeric_columns].to_numpy(copy=False)  # Access numeric validity values without an unnecessary copy
+        try:  # Attempt vectorized finite-value validation across numeric source fields
+            valid &= np.isfinite(numeric).all(axis=1)  # Reject rows containing positive or negative infinity in numeric fields
+        except TypeError:  # Preserve the original tolerance for mixed/object numeric arrays that cannot be tested directly
+            pass  # Leave the existing missing-value mask unchanged for this vectorized check
+    for display in PAPER_TOP20:  # Apply the stronger downstream-validity guard to each selected feature
+        if display in CATEGORICAL_SELECTED:  # Verify if the selected feature is categorical in the supplied reconstruction
+            column = schema.selected_actual[display]  # Resolve the exact source header for the categorical feature
+            values = chunk[column].astype("string")  # Convert categorical values to pandas string dtype
+            valid &= values.notna() & (values.str.strip() != "")  # Reject missing and empty categorical values
+        else:  # Handle selected features expected to be numeric downstream
+            column = schema.selected_actual[display]  # Resolve the exact source header for the numeric feature
+            numeric_values = pd.to_numeric(chunk[column], errors="coerce")  # Coerce non-numeric selected values to missing
+            array = numeric_values.to_numpy(dtype=np.float64, copy=False)  # Materialize a float64 view for finite-value testing
+            valid &= np.isfinite(array)  # Reject non-numeric, NaN, and infinite selected numeric values
+    return valid  # Return the complete cleaning mask for the current chunk
