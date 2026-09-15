@@ -87,3 +87,22 @@ The repository separates **paper-specified settings** from **reconstruction choi
 > M. Ramzan, M. Shoaib, A. Altaf, S. Arshad, F. Iqbal, Á. Kuc Castilla, and I. Ashraf, “Distributed Denial of Service Attack Detection in Network Traffic Using Deep Learning Algorithm,” *Sensors*, vol. 23, no. 20, article 8642, 2023. DOI: [10.3390/s23208642](https://doi.org/10.3390/s23208642).
 
 The paper uses CICDDoS2019 for training/evaluation and also compares results with CICIDS2017. This repository focuses specifically on reproducing the **CICDDoS2019 GRU multiclass result**.
+
+## Target Experiment
+
+Table 4 of the paper reports:
+
+| Model | Accuracy | Precision | Recall | F1-score | Execution time |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| RNN | 99.15% | 97% | 97% | 97% | 4 min |
+| LSTM | 99.43% | 98% | 99% | 98% | 16 min 30 s |
+| **GRU** | **99.54%** | **98%** | **99%** | **98%** | **7 min 3 s** |
+
+The configured numerical targets are therefore:
+
+```text
+Accuracy = 0.9954
+F1       = 0.9800
+```
+
+The paper reports F1 as the rounded value `98%`; `0.9800` is the decimal representation used by the reproduction code, not an unrounded value published by the authors.
