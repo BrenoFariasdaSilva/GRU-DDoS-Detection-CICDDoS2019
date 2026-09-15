@@ -294,3 +294,28 @@ def persist_aggregate_results(results: List[Dict[str, object]], output_dir: Path
     }  # Preserve the original aggregate fields and statistical formulas
     json_dump(output_dir / "aggregate_metrics.json", aggregate)  # Persist aggregate metrics with the original JSON formatting helper
     return aggregate  # Return aggregate metrics for final completion output
+
+
+def run_workflow(args: argparse.Namespace) -> None:
+    """
+    Execute the complete modular GRU CICDDoS2019 reproduction workflow in original stage order.
+
+    :param args: Validated and normalized command-line namespace.
+    :return: None.
+    """
+
+    cfg = build_config(args)  # Build the immutable runtime configuration after CLI validation
+    json_dump(args.output_dir / "config.json", asdict(cfg))  # Persist resolved configuration before runtime processing
+    persist_paper_metadata(cfg, args.output_dir)  # Persist and print paper audit/reconstruction metadata before touching training data
+    raw_before = raw_snapshot(args.data_dir)  # Snapshot all raw CSV metadata before accelerator/data processing
+    json_dump(args.output_dir / "raw_dataset_snapshot_before.json", raw_before)  # Persist the original pre-run raw integrity artifact
+    device = configure_accelerator(args.allow_cpu)  # Verify and select GPU or explicitly allowed CPU execution
+    json_dump(args.output_dir / "environment.json", environment_info(device))  # Persist environment metadata after device selection
+    X, y = load_or_build_encoded_cache(args)  # Reuse or construct the encoded sampled dataset exactly as configured
+    validate_encoded_cache(X, y)  # Reject malformed or incomplete encoded samples before any model run
+    results = run_all_experiments(cfg, device, X, y, args.output_dir)  # Execute every configured GRU run and collect scalar metrics
+    aggregate = persist_aggregate_results(results, args.output_dir)  # Persist cross-run summary and aggregate statistics
+    raw_after = raw_snapshot(args.data_dir)  # Snapshot all raw CSV metadata again after every configured run
+    json_dump(args.output_dir / "raw_dataset_snapshot_after.json", raw_after)  # Persist the original post-run raw integrity artifact
+    verify_raw_snapshot(raw_before, raw_after)  # Fail if any raw source size/mtime/path metadata changed during execution
+    print("[COMPLETE]", json.dumps(aggregate, indent=2))  # Preserve the original final aggregate completion message
