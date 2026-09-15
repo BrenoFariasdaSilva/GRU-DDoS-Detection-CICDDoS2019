@@ -60,8 +60,6 @@ SOUND_COMMANDS: dict[str, tuple[str, ...]] = {
     "Linux": ("aplay", "-q"),
 }
 
-# Functions Definitions:
-
 
 def format_execution_duration(seconds: float) -> str:
     """
