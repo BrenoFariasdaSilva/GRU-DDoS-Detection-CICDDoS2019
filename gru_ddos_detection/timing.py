@@ -70,3 +70,20 @@ def format_seconds(seconds: Optional[float]) -> str:
         parts.append(f"{minutes}m")  # Preserve minute formatting without zero padding
     parts.append(f"{secs}s")  # Always include seconds in the final representation
     return " ".join(parts)  # Return the original space-separated duration format
+
+
+def human_bytes(byte_count: float) -> str:
+    """
+    Format a byte count using binary units from bytes through tebibytes.
+
+    :param byte_count: Number of bytes to format.
+    :return: Human-readable binary byte-size string.
+    """
+
+    units = ("B", "KiB", "MiB", "GiB", "TiB")  # Preserve the original ordered binary unit list
+    value = float(byte_count)  # Convert input to floating point for repeated division
+    for unit in units:  # Test each unit from bytes through tebibytes
+        if abs(value) < 1024.0 or unit == units[-1]:  # Verify if the current unit is suitable or the final unit was reached
+            return f"{value:.2f} {unit}"  # Return the original two-decimal size format
+        value /= 1024.0  # Convert the value to the next binary unit
+    return f"{value:.2f} TiB"  # Preserve the defensive final fallback from the supplied implementation
