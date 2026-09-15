@@ -1,49 +1,44 @@
 """
 ================================================================================
-<PROJECT OR SCRIPT TITLE>
+GRU DDOS DETECTION ON CICDDOS2019 ORCHESTRATOR
 ================================================================================
 Author      : Breno Farias da Silva
-Created     : <YYYY-MM-DD>
+Created     : 2026-09-14
 Description :
-    <Provide a concise and complete overview of what this script does.>
-    <Mention its purpose, scope, and relevance to the larger project.>
+    Provides the top-level entry point for the modular CICDDoS2019 multi-class GRU reconstruction of Ramzan et al. (2023). The entry point configures
+    dual console/file logging, registers a cross-platform completion notification,
+    parses and validates the existing CLI, and delegates the experiment to the modular
+    project workflow without changing the model or dataset-processing logic.
 
     Key features include:
-        - <Feature 1 — e.g., automatic data loading and preprocessing>
-        - <Feature 2 — e.g., model training and evaluation>
-        - <Feature 3 — e.g., visualization or report generation>
-        - <Feature 4 — e.g., logging or notification system>
-        - <Feature 5 — e.g., integration with other modules or datasets>
+        - Mirrors stdout and stderr to the console and logs/main.log.
+        - Registers .assets/Sounds/NotificationSound.wav through atexit.
+        - Delegates the complete reproduction workflow to gru_ddos_detection.workflow.
 
 Usage:
-    1. <Explain any configuration steps before running, such as editing variables or paths.>
-    2. <Describe how to execute the script — typically via Makefile or Python.>
-        $ make <target>   or   $ python <script_name>.py
-    3. <List what outputs are expected or where results are saved.>
+    1. Configure dataset and output paths through the Makefile variables or CLI options.
+    2. Execute make run-mac, make run-linux, or python main.py --data-dir PATH [options].
+    3. Review experiment artifacts below --output-dir and runtime output in logs/main.log.
 
 Outputs:
-    - <Output file or directory 1 — e.g., results.csv>
-    - <Output file or directory 2 — e.g., Feature_Analysis/plots/>
-    - <Output file or directory 3 — e.g., logs/output.txt>
+    - Writes the complete runtime console stream to logs/main.log.
+    - Writes experiment outputs below the configured --output-dir directory.
+    - Plays the bundled completion sound when a supported system audio command is available.
 
 TODOs:
-    - <Add a task or improvement — e.g., implement CLI argument parsing.>
-    - <Add another improvement — e.g., extend support to Parquet files.>
-    - <Add optimization — e.g., parallelize evaluation loop.>
-    - <Add robustness — e.g., error handling or data validation.>
+    - None identified.
 
 Dependencies:
-    - Python >= <version>
-    - <Library 1 — e.g., pandas>
-    - <Library 2 — e.g., numpy>
-    - <Library 3 — e.g., scikit-learn>
-    - <Library 4 — e.g., matplotlib, seaborn, tqdm, colorama>
+    - Python standard library.
+    - Logger.py.
+    - gru_ddos_detection.cli.
+    - gru_ddos_detection.workflow.
 
 Assumptions & Notes:
-    - <List any key assumptions — e.g., last column is the target variable.>
-    - <Mention data format — e.g., CSV files only.>
-    - <Mention platform or OS-specific notes — e.g., sound disabled on Windows.>
-    - <Note on output structure or reusability.>
+    - Raw CICDDoS2019 CSV files remain read-only and are verified by the workflow.
+    - Completion-sound failures are non-fatal, including headless Linux audio failures.
+    - Relative and absolute output-path behavior remains controlled by the existing CLI.
+================================================================================
 """
 
 import atexit  # For playing a sound when the program finishes
