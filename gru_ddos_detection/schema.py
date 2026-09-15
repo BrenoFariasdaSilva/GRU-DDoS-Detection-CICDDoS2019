@@ -187,3 +187,14 @@ def row_validity_mask(chunk: pd.DataFrame, schema: FileSchema) -> pd.Series:
             array = numeric_values.to_numpy(dtype=np.float64, copy=False)  # Materialize a float64 view for finite-value testing
             valid &= np.isfinite(array)  # Reject non-numeric, NaN, and infinite selected numeric values
     return valid  # Return the complete cleaning mask for the current chunk
+
+
+def read_usecols(schema: FileSchema) -> List[str]:
+    """
+    Build the deduplicated source-column list required for streamed cleaning and labeling.
+
+    :param schema: Exact source-column mapping for one CSV file.
+    :return: Ordered source headers passed to pandas read_csv(usecols=...).
+    """
+
+    return list(dict.fromkeys(list(schema.validity_cols) + [schema.label_col]))  # Preserve source validity-column order and append the label once
