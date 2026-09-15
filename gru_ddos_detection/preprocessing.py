@@ -105,3 +105,23 @@ def standardize_run_arrays(X_train: np.ndarray, X_test: np.ndarray, cfg: Config,
     else:  # Handle rigorous train-only scaler fitting
         standardized_test = train_scaler.transform(X_test).astype(np.float32, copy=False)  # Apply training statistics to the test partition without refitting
     return standardized_train, standardized_test  # Return float32 standardized train/test features
+
+
+def persist_generated_dataset(run_dir: Path, X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray) -> None:
+    """
+    Persist standardized train/test arrays and integer labels under generated_dataset.
+
+    :param run_dir: Current experiment run directory.
+    :param X_train: Standardized training feature matrix.
+    :param X_test: Standardized test feature matrix.
+    :param y_train: Integer training labels.
+    :param y_test: Integer test labels.
+    :return: None.
+    """
+
+    generated = run_dir / "generated_dataset"  # Resolve the original per-run generated dataset directory
+    generated.mkdir(exist_ok=True)  # Create the generated dataset directory when absent
+    np.save(generated / "X_train_standardized.npy", X_train, allow_pickle=False)  # Persist standardized training features
+    np.save(generated / "X_test_standardized.npy", X_test, allow_pickle=False)  # Persist standardized test features
+    np.save(generated / "y_train_ids.npy", y_train, allow_pickle=False)  # Persist integer training labels
+    np.save(generated / "y_test_ids.npy", y_test, allow_pickle=False)  # Persist integer test labels
