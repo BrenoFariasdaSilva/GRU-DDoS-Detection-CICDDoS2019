@@ -322,3 +322,18 @@ make run-mac MAC_PER_CLASS_CAP=50000 MAC_BATCH_SIZE=128
 ### `figure6-inferred`
 
 Uses class quotas inferred from the published Figure 6(c) test supports divided by the reported `0.30` test proportion. This is the closest matrix-sized reconstruction, not a source sample size explicitly stated by the authors.
+
+### `all`
+
+Used by `make run-linux` for the requested full-source server execution:
+
+```text
+LINUX_SAMPLING_PROFILE=all
+LINUX_BATCH_SIZE=1000
+```
+
+Every cleaned target-class row from the selected `01-12` source day is retained. Batch size controls GRU training batches and does not cap source records. To prioritize the paper-matrix-sized reconstruction instead of all valid rows, run:
+
+```bash
+make run-linux LINUX_SAMPLING_PROFILE=figure6-inferred
+```
