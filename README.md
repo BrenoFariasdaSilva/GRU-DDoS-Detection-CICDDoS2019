@@ -33,7 +33,7 @@ A reproducible, memory-aware reconstruction of the paper's CICDDoS2019 multiclas
 
 <div align="center">
   
-![RepoBeats Statistics](https://repobeats.axiom.co/api/embed/c36c20e25527ac26cdc37e52e5e2335a58f758c8.svg "Repobeats analytics image")
+![RepoBeats Statistics](https://repobeats.axiom.co/api/embed/1aa1df4d0d9e67c798ca62e117122c24191e4922.svg "Repobeats analytics image")
 
 </div>
 
