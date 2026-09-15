@@ -206,3 +206,21 @@ def build_encoded_cache(args: argparse.Namespace, x_cache: Path, y_cache: Path, 
     )  # Stream the sampled dataset into the original disk-backed encoded cache files
     json_dump(encoder_dir / "output_class_order.json", label_encoder.classes_.tolist())  # Preserve encoded canonical class-order artifact
     return X, y  # Return memory-mapped encoded arrays for validation and repeated runs
+
+
+def load_or_build_encoded_cache(args: argparse.Namespace) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Reuse complete encoded caches when explicitly requested, otherwise rebuild them.
+
+    :param args: Validated command-line namespace controlling cache reuse and dataset preparation.
+    :return: Read-only memory-mapped or freshly generated encoded feature and label arrays.
+    """
+
+    x_cache = args.output_dir / "encoded_sample_X.npy"  # Resolve the original encoded feature-cache path
+    y_cache = args.output_dir / "encoded_sample_y.npy"  # Resolve the original encoded label-cache path
+    sample_gz = args.output_dir / "derived_dataset" / "sampled_selected_top20.csv.gz"  # Resolve the original compressed sampled-data path
+    sample_report_path = args.output_dir / "sampling_report.json"  # Resolve the original sampling report path
+    if args.reuse_cache and x_cache.exists() and y_cache.exists():  # Verify if explicit cache reuse was requested and both required arrays exist
+        print("[DATA] Reusing local encoded sample cache; raw dataset will not be rescanned.")  # Preserve the original cache-reuse message
+        return np.load(x_cache, mmap_mode="r"), np.load(y_cache, mmap_mode="r")  # Reopen existing arrays as read-only memory maps without raw rescanning
+    return build_encoded_cache(args, x_cache, y_cache, sample_gz, sample_report_path)  # Rebuild sampling, encoders, and encoded arrays when reuse is unavailable
