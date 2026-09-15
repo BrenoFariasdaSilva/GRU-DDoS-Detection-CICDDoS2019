@@ -102,3 +102,35 @@ def build_config(args: argparse.Namespace) -> Config:
         allow_cpu=args.allow_cpu,
         reuse_cache=args.reuse_cache,
     )  # Preserve the original command-line-to-configuration field mapping exactly
+
+
+def persist_paper_metadata(cfg: Config, output_dir: Path) -> None:
+    """
+    Persist paper audit, reconstruction assumptions, and published selected features.
+
+    :param cfg: Immutable resolved experiment configuration.
+    :param output_dir: Root generated-output directory.
+    :return: None.
+    """
+
+    audit = paper_matrix_audit()  # Recompute the supplied Figure 6(c) audit before training
+    json_dump(output_dir / "paper_internal_consistency_audit.json", audit)  # Preserve the original audit artifact filename
+    print("[PAPER] Table 4 target: accuracy=0.9954, F1=0.9800")  # Preserve the original Table 4 target message
+    print(
+        "[PAPER] Figure 6(c) audit: "
+        f"test_rows={audit['figure6c_total_test_rows']:,}, "
+        f"accuracy_from_cells={audit['figure6c_accuracy_computed_from_cells']:.6f}, "
+        f"macro_F1={audit['figure6c_macro_f1_computed_from_cells']:.6f}, "
+        f"weighted_F1={audit['figure6c_weighted_f1_computed_from_cells']:.6f}"
+    )  # Preserve the original concise audit message
+    print(
+        "[PAPER] Figure 6(c) is NOT mathematically consistent with Table 4: "
+        f"trace={audit['figure6c_correct_predictions_trace']:,}/"
+        f"{audit['figure6c_total_test_rows']:,}, "
+        f"matrix_accuracy={audit['figure6c_accuracy_computed_from_cells']:.8f}, "
+        f"table4_accuracy={PAPER_TARGET_ACCURACY:.4f}, "
+        f"matrix_macro_F1={audit['figure6c_macro_f1_computed_from_cells']:.8f}, "
+        f"table4_F1={PAPER_TARGET_F1:.4f}."
+    )  # Report the computed matrix values and published Table 4 targets without conflating them
+    json_dump(output_dir / "reconstruction_assumptions.json", build_reconstruction_assumptions(cfg))  # Persist the original assumptions/missing-information structure
+    json_dump(output_dir / "published_top20_features.json", list(PAPER_TOP20))  # Preserve the published selected-feature artifact
