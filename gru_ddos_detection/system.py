@@ -99,3 +99,17 @@ def configure_accelerator(allow_cpu: bool) -> str:
         raise RuntimeError(f"GPU listed, but smoke test executed on {product.device}")  # Preserve the original placement failure
     tf.keras.mixed_precision.set_global_policy("float32")  # Preserve explicit float32 policy on the GPU path
     return "/GPU:0"  # Return the verified GPU device
+
+
+def set_seeds(model_seed: int) -> None:
+    """
+    Apply the supplied model seed to Python, NumPy, and TensorFlow.
+
+    :param model_seed: Integer seed for the current model run.
+    :return: None.
+    """
+
+    os.environ["PYTHONHASHSEED"] = str(model_seed)  # Preserve the original Python hash-seed assignment
+    random.seed(model_seed)  # Seed the Python pseudo-random generator
+    np.random.seed(model_seed)  # Seed NumPy's legacy global pseudo-random generator
+    tf.keras.utils.set_random_seed(model_seed)  # Seed TensorFlow/Keras reproducibility utilities
