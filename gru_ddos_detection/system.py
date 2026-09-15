@@ -113,3 +113,25 @@ def set_seeds(model_seed: int) -> None:
     random.seed(model_seed)  # Seed the Python pseudo-random generator
     np.random.seed(model_seed)  # Seed NumPy's legacy global pseudo-random generator
     tf.keras.utils.set_random_seed(model_seed)  # Seed TensorFlow/Keras reproducibility utilities
+
+
+def environment_info(device: str) -> Dict[str, object]:
+    """
+    Build the environment metadata dictionary persisted by the reproduction workflow.
+
+    :param device: TensorFlow device selected by configure_accelerator().
+    :return: Environment metadata dictionary matching the supplied implementation fields.
+    """
+
+    return {
+        "platform": platform.platform(),
+        "machine": platform.machine(),
+        "python": sys.version,
+        "tensorflow": tf.__version__,
+        "tensorflow_metal": package_version("tensorflow-metal"),
+        "numpy": np.__version__,
+        "pandas": pd.__version__,
+        "scikit_learn": package_version("scikit-learn"),
+        "device": device,
+        "ram_gib": psutil.virtual_memory().total / 2**30,
+    }  # Preserve the original environment.json field names and calculations
