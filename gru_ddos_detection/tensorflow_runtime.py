@@ -39,3 +39,11 @@ import os
 
 
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "1")
+
+try:  # Attempt TensorFlow import after applying the original startup log-level setting
+    import tensorflow as tf
+except Exception as exc:  # Convert TensorFlow import failures into a platform-aware runtime error
+    raise RuntimeError(
+        "TensorFlow could not be imported. Install the platform-aware requirements.txt "
+        "for macOS Apple Silicon or Linux before running this project. Original error:\n" + str(exc)
+    ) from exc
