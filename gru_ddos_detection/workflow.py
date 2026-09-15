@@ -224,3 +224,18 @@ def load_or_build_encoded_cache(args: argparse.Namespace) -> Tuple[np.ndarray, n
         print("[DATA] Reusing local encoded sample cache; raw dataset will not be rescanned.")  # Preserve the original cache-reuse message
         return np.load(x_cache, mmap_mode="r"), np.load(y_cache, mmap_mode="r")  # Reopen existing arrays as read-only memory maps without raw rescanning
     return build_encoded_cache(args, x_cache, y_cache, sample_gz, sample_report_path)  # Rebuild sampling, encoders, and encoded arrays when reuse is unavailable
+
+
+def validate_encoded_cache(X: np.ndarray, y: np.ndarray) -> None:
+    """
+    Validate encoded cache shape alignment and complete twelve-class coverage.
+
+    :param X: Encoded sampled feature matrix.
+    :param y: Encoded sampled integer-label vector.
+    :return: None.
+    """
+
+    if X.shape[1] != 20 or len(X) != len(y):  # Verify the expected published feature count and row alignment
+        raise RuntimeError(f"Invalid encoded cache shapes X={X.shape}, y={y.shape}")  # Preserve the original malformed-cache failure
+    if set(np.unique(np.asarray(y)).tolist()) != set(range(12)):  # Verify if every expected encoded class ID is present
+        raise RuntimeError(f"Encoded data does not contain all 12 classes: {np.unique(y)}")  # Preserve the original incomplete-class failure
