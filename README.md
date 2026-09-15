@@ -431,3 +431,17 @@ All major controls are overridable inline. For example:
 ```bash
 make run-linux LINUX_BATCH_SIZE=2048 CHUNKSIZE=100000 RUNS=1
 ```
+
+## Installation and Execution
+
+### macOS Apple Silicon — bounded-memory execution
+
+The defaults expect the dataset at `/Users/brenofarias/Downloads/RAW Datasets/CICDDoS2019`, cap each class at 100,000 rows, use batch size 256, and keep output inside this repository:
+
+```bash
+make run-mac
+```
+
+```bash
+make run-mac MAC_DATA_DIR="/another/path/CICDDoS2019" MAC_PER_CLASS_CAP=50000 MAC_BATCH_SIZE=128
+```
