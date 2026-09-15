@@ -98,3 +98,34 @@ class ETA:
     started: float
     last_print: float
 
+    def report(self: "ETA", done: float, detail: str = "", force: bool = False) -> None:
+        """
+        Report stage progress and ETA using the supplied implementation's formula.
+
+        :param self: Current ETA state object.
+        :param done: Amount of work completed so far.
+        :param detail: Optional detail suffix appended to the progress message.
+        :param force: Whether to bypass the five-second output throttle.
+        :return: None.
+        """
+
+        now = time.time()  # Capture one timestamp for all progress calculations
+        if not force and now - self.last_print < 5.0:  # Verify if a non-forced report occurs before the original five-second interval
+            return  # Skip the report to preserve the original output cadence
+        self.last_print = now  # Record the current reporting timestamp
+        bounded_done = max(0.0, min(float(done), self.total)) if self.total > 0 else float(done)  # Clamp progress only when a positive total exists
+        elapsed = max(now - self.started, 1e-9)  # Protect the rate calculation from a zero elapsed duration
+        if self.total > 0 and bounded_done > 0:  # Verify if enough progress exists to calculate a remaining ETA
+            fraction = bounded_done / self.total  # Calculate completed fraction of total work
+            eta = elapsed * (1.0 - fraction) / fraction  # Estimate remaining duration using the original rate formula
+            percent = 100.0 * fraction  # Convert completed fraction to percentage
+            speed = bounded_done / elapsed  # Calculate observed work units per second
+            message = (
+                f"[ETA][{self.label}] {percent:6.2f}% | elapsed={format_seconds(elapsed)} "
+                f"| ETA={format_seconds(eta)} | rate={speed:,.2f}/s"
+            )  # Preserve the original progress field order and formatting
+        else:  # Handle stages that do not yet have measurable positive progress
+            message = f"[ETA][{self.label}] elapsed={format_seconds(elapsed)} | ETA=unavailable"  # Preserve the original unavailable-ETA form
+        if detail:  # Verify if the caller provided an additional progress detail
+            message += f" | {detail}"  # Append the detail with the original separator
+        print(message, flush=True)  # Emit the progress line immediately
