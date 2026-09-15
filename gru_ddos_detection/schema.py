@@ -145,3 +145,14 @@ def inspect_schemas(files: Sequence[Path]) -> List[FileSchema]:
         )  # Preserve row-validity coverage across every non-index, non-label source field
         schemas.append(FileSchema(path, label, selected, validity))  # Store the validated source schema
     return schemas  # Return schemas in source-file order
+
+
+def canonical_labels(series: pd.Series) -> pd.Series:
+    """
+    Canonicalize raw source labels through the supplied alias mapping.
+
+    :param series: Raw source label series.
+    :return: Series containing canonical labels or missing values for unknown labels.
+    """
+
+    return series.astype("string").fillna("").map(normalize_token).map(BASE_LABEL_ALIASES)  # Preserve the original vectorized label canonicalization chain
