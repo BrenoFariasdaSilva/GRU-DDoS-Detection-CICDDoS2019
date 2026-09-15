@@ -318,3 +318,7 @@ The cap is applied independently to each of the 12 target classes before the 70/
 ```bash
 make run-mac MAC_PER_CLASS_CAP=50000 MAC_BATCH_SIZE=128
 ```
+
+### `figure6-inferred`
+
+Uses class quotas inferred from the published Figure 6(c) test supports divided by the reported `0.30` test proportion. This is the closest matrix-sized reconstruction, not a source sample size explicitly stated by the authors.
