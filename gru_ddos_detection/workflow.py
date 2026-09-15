@@ -37,47 +37,36 @@ Assumptions & Notes:
 ================================================================================
 """
 
-import atexit  # For playing a sound when the program finishes
-import datetime  # For getting the current date and time
-import os  # For running a command in the terminal
-import platform  # For getting the operating system name
-import sys  # For system-specific parameters and functions
-from colorama import Style  # For coloring the terminal
-from Logger import Logger  # For logging output to both terminal and file
-from pathlib import Path  # For handling file paths
+from __future__ import annotations
 
+import argparse
+import json
+import time
+from dataclasses import asdict
+from pathlib import Path
+from typing import Dict, List, Tuple
 
-# Macros:
-class BackgroundColors:  # Colors for the terminal
-    CYAN = "\033[96m"  # Cyan
-    GREEN = "\033[92m"  # Green
-    YELLOW = "\033[93m"  # Yellow
-    RED = "\033[91m"  # Red
-    BOLD = "\033[1m"  # Bold
-    UNDERLINE = "\033[4m"  # Underline
-    CLEAR_TERMINAL = "\033[H\033[J"  # Clear the terminal
+import numpy as np
+import pandas as pd
 
+from .audit import build_reconstruction_assumptions, paper_matrix_audit
+from .config import Config
+from .constants import (
+    FIGURE6_INFERRED_CLASS_QUOTAS,
+    PAPER_FIGURE6_CLASSES,
+    PAPER_FIGURE6_TEST_SUPPORT,
+    PAPER_TARGET_ACCURACY,
+    PAPER_TARGET_F1,
+    PAPER_TOP20,
+)
+from .encoding import encode_sample_to_npy, fit_sample_encoders
+from .experiment import run_experiment
+from .persistence import json_dump, raw_snapshot, verify_raw_snapshot
+from .sampling import count_valid_rows, determine_quotas, exact_sample_to_disk
+from .schema import find_source_csvs, inspect_schemas
+from .system import configure_accelerator, environment_info
+from .timing import format_seconds
 
-# Execution Constants:
-VERBOSE = False  # Set to True to output verbose messages
-
-# Logger Setup:
-logger = Logger(f"./Logs/{Path(__file__).stem}.log", clean=True)  # Create a Logger instance
-sys.stdout = logger  # Redirect stdout to the logger
-sys.stderr = logger  # Redirect stderr to the logger
-
-# Sound Constants:
-SOUND_COMMANDS = {
-    "Darwin": "afplay",
-    "Linux": "aplay",
-    "Windows": "start",
-}  # The commands to play a sound for each operating system
-SOUND_FILE = "./.assets/Sounds/NotificationSound.wav"  # The path to the sound file
-
-# RUN_FUNCTIONS:
-RUN_FUNCTIONS = {
-    "Play Sound": True,  # Set to True to play a sound when the program finishes
-}
 
 # Functions Definitions:
 
