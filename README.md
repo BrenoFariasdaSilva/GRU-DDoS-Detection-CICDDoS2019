@@ -213,3 +213,32 @@ CICDDoS2019
 → early stopping
 → test metrics and confusion matrix
 ```
+
+## Published Top-20 Features
+
+The final selected features reproduced by this project are:
+
+| # | Feature |
+| ---: | --- |
+| 1 | Timestamp |
+| 2 | Source Port |
+| 3 | Min Packet Length |
+| 4 | Fwd Packet Length Min |
+| 5 | Flow ID |
+| 6 | Packet Length Mean |
+| 7 | Fwd Packet Length Max |
+| 8 | Average Packet Size |
+| 9 | ACK Flag Count |
+| 10 | Avg Fwd Segment Size |
+| 11 | Fwd Packet Length Mean |
+| 12 | Flow Bytes/s |
+| 13 | Max Packet Length |
+| 14 | Protocol |
+| 15 | Fwd Packets/s |
+| 16 | Flow Packets/s |
+| 17 | Total Length of Fwd Packets |
+| 18 | Subflow Fwd Bytes |
+| 19 | Destination Port |
+| 20 | act_data_pkt_fwd |
+
+`Timestamp` and `Flow ID` are intentionally retained because the goal is to reproduce the published selected-feature experiment, even though identifier-like fields would normally deserve additional leakage analysis in a new study.
