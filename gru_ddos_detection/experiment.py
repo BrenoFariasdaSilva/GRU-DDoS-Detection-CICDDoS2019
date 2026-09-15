@@ -178,3 +178,18 @@ def fit_model(model: tf.keras.Model, train_dataset: tf.data.Dataset, validation_
             verbose=0,
         )  # Preserve the original model.fit arguments and quiet built-in progress output
     return history, time.time() - started  # Return fit history and original wall-clock training duration
+
+
+def load_best_model(model: tf.keras.Model, run_dir: Path) -> tf.keras.Model:
+    """
+    Load the persisted best checkpoint when it exists, otherwise retain the fitted model.
+
+    :param model: In-memory model after training completes.
+    :param run_dir: Current run directory containing best_model.keras when checkpointed.
+    :return: Best available Keras model for final prediction.
+    """
+
+    best_path = run_dir / "best_model.keras"  # Resolve the original best-checkpoint path
+    if best_path.exists():  # Verify if ModelCheckpoint persisted at least one validation-loss improvement
+        return tf.keras.models.load_model(best_path)  # Preserve final evaluation from the persisted best checkpoint
+    return model  # Retain the fitted in-memory model only if no checkpoint exists
