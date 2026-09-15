@@ -94,3 +94,64 @@ def paper_matrix_audit() -> Dict[str, object]:
             f"Table 4 reported F1={PAPER_TARGET_F1:.4f}."
         ),
     }  # Return the audit values with a mathematically accurate comparison to Table 4
+
+
+def build_reconstruction_assumptions(cfg: Config) -> Dict[str, object]:
+    """
+    Build the explicit published-versus-inferred reconstruction assumptions manifest.
+
+    :param cfg: Immutable resolved experiment configuration.
+    :return: Dictionary persisted as reconstruction_assumptions.json.
+    """
+
+    return {
+        "paper_specified": {
+            "missing_null_handling": "remove records",
+            "normalization": "StandardScaler / mean 0 std 1",
+            "feature_selection": "ExtraTrees, final published top 20",
+            "split": "70% train / 30% test",
+            "gru_layers": 2,
+            "gru_units_per_layer": 8,
+            "hidden_dense_units": [16, 8],
+            "activation": "ReLU hidden, Softmax multiclass",
+            "optimizer": "Adam",
+            "learning_rate": 0.001,
+            "loss": "categorical cross entropy",
+            "batch_size": 1000,
+            "max_epochs": 100,
+            "early_stopping": {"monitor": "val_loss", "min_delta": 0.001, "patience": 5},
+            "dropout": "used, rate and location not published",
+        },
+        "publication_missing_or_ambiguous": [
+            "exact source-file sampling/downsampling procedure and sample counts",
+            "class list conflicts between prose and Figure 6(c)",
+            "dropout rate and exact placement",
+            "validation partition creation despite only a 70/30 train/test split being specified",
+            "GRU input sequence/window construction, ordering, stride, overlap, and timestep count",
+            "random seed(s)",
+            "whether train_test_split was stratified",
+            "whether scaler was fit on train only or separately/before split",
+            "exact ExtraTrees hyperparameters/training population",
+            "exact number of independent runs",
+            "whether any cross-validation was actually performed (none is reported)",
+            "metric averaging convention for multiclass precision/recall/F1",
+            "TensorFlow/Keras/Python/CUDA/cuDNN versions",
+        ],
+        "reconstruction_defaults": {
+            "classes": list(PAPER_FIGURE6_CLASSES),
+            "source_day": cfg.source_day,
+            "sampling_profile": cfg.sampling_profile,
+            "inferred_class_quotas": FIGURE6_INFERRED_CLASS_QUOTAS,
+            "dropout": cfg.dropout,
+            "input_shape": [1, 20],
+            "split_seed": cfg.split_seed,
+            "model_seed": cfg.model_seed,
+            "validation_mode": cfg.validation_mode,
+            "scaling_mode": cfg.scaling_mode,
+            "stratify": cfg.stratify,
+            "external_clue_warning": (
+                "Some defaults are informed by a pre-existing, non-author CICDDoS2019 notebook with the same exact "
+                "top-20 feature list. It is not an official implementation of Ramzan et al."
+            ),
+        },
+    }  # Preserve the supplied assumptions manifest exactly while moving construction out of main.py
