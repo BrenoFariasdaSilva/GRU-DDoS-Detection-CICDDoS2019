@@ -630,3 +630,16 @@ Contributions are welcome when they preserve a clear distinction between **paper
    - `DOCS: Update ...`
    - `REFACTOR: Improve ...`
 6. Open a pull request explaining any scientific or reproducibility impact.
+
+## Author
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/BrenoFariasdaSilva" title="Breno Farias da Silva on GitHub">
+        <img src="https://github.com/BrenoFariasdaSilva.png" width="100px;" alt="Breno Farias da Silva"/><br>
+        <sub><b>Breno Farias da Silva</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
