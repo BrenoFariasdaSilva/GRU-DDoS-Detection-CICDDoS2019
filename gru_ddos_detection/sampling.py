@@ -259,3 +259,61 @@ def write_selected_rows(gzip_handle: TextIO, chunk: pd.DataFrame, schema: FileSc
     normalized.to_csv(gzip_handle, index=False, header=not wrote_header)  # Append sampled rows and write the header only on the first non-empty chunk
     del normalized, chosen_mask  # Release selected chunk materialization before continuing the raw scan
     return True  # Record that the compressed sample now contains its header
+
+
+def exact_sample_to_disk(schemas: Sequence[FileSchema], root: Path, chunksize: int, population_counts: Mapping[str, int], quotas: Mapping[str, int], seed: int, out_gz: Path) -> Dict[str, object]:
+    """
+    Stream an exact uniform without-replacement class sample to compressed local disk.
+
+    :param schemas: Ordered validated source-file schemas.
+    :param root: Raw dataset root used for relative paths.
+    :param chunksize: Number of source rows read per pandas chunk.
+    :param population_counts: Cleaned target populations measured by the first pass.
+    :param quotas: Exact target rows requested for each Figure 6(c) class.
+    :param seed: NumPy random seed for second-pass exact sampling.
+    :param out_gz: Destination gzip CSV path for sampled top-20 rows.
+    :return: Sampling-result dictionary with quotas, selected counts, path, and row total.
+    """
+
+    rng = np.random.default_rng(seed)  # Initialize the same NumPy generator from the configured data seed
+    remaining_population = {class_name: int(population_counts[class_name]) for class_name in PAPER_FIGURE6_CLASSES}  # Track exact class rows still unseen
+    remaining_need = {class_name: int(quotas[class_name]) for class_name in PAPER_FIGURE6_CLASSES}  # Track exact class rows still required
+    selected_counts: Counter[str] = Counter()  # Accumulate selected rows per target class
+    total_bytes = sum(schema.path.stat().st_size for schema in schemas)  # Sum source sizes for pass-two byte progress
+    completed_bytes = 0  # Track bytes belonging to source files already completed
+    eta = create_eta("PASS2-SAMPLE", total_bytes)  # Initialize the original pass-two ETA reporter
+    out_gz.parent.mkdir(parents=True, exist_ok=True)  # Ensure the derived-dataset directory exists before opening gzip output
+    with gzip.open(out_gz, "wt", encoding="utf-8", newline="") as gzip_handle:  # Create the compressed derived sample in text mode
+        wrote_header = False  # Delay header writing until the first non-empty sampled chunk
+        for file_index, schema in enumerate(schemas, 1):  # Stream every validated source file in deterministic order
+            file_size = schema.path.stat().st_size  # Read current source size for bounded file-position progress
+            print(f"[DATA][PASS2] file {file_index}/{len(schemas)}: {schema.path.relative_to(root)}")  # Preserve the original pass-two file message
+            with schema.path.open("rb") as raw_handle:  # Open the raw source strictly for binary reading
+                reader = pd.read_csv(raw_handle, usecols=read_usecols(schema), chunksize=chunksize, low_memory=False)  # Stream cleaning/label columns using the same pandas settings
+                for chunk_index, chunk in enumerate(reader, 1):  # Process the current source file one bounded chunk at a time
+                    labels = canonical_labels(chunk[schema.label_col])  # Canonicalize source labels before target filtering
+                    valid = row_validity_mask(chunk, schema) & labels.isin(PAPER_FIGURE6_CLASSES)  # Restrict exact sampling to cleaned Figure 6(c) target rows
+                    if valid.any():  # Verify if the current chunk contains at least one cleaned target row
+                        valid_indices = np.flatnonzero(valid.to_numpy())  # Resolve positional target-row indices within the original chunk
+                        valid_labels = labels.iloc[valid_indices].to_numpy(dtype=object)  # Materialize canonical target labels aligned to valid indices
+                        chosen = select_chunk_indices(valid_indices, valid_labels, remaining_population, remaining_need, selected_counts, rng)  # Perform exact conditional class sampling in original RNG order
+                        wrote_header = write_selected_rows(gzip_handle, chunk, schema, labels, chosen, wrote_header)  # Append sampled canonical rows to the compressed derived dataset
+                    if chunk_index % 5 == 0:  # Verify if the original five-chunk progress interval was reached
+                        position = min(raw_handle.tell(), file_size)  # Bound buffered source position to the current file size
+                        eta.report(
+                            completed_bytes + position,
+                            f"file={schema.path.name} chunk={chunk_index} selected={sum(selected_counts.values()):,}",
+                        )  # Preserve the original pass-two progress detail
+                    del chunk, labels, valid  # Release chunk-local source data before the next iteration
+                    gc.collect()  # Preserve explicit garbage collection for bounded memory usage
+            completed_bytes += file_size  # Advance completed-byte accounting after finishing the current file
+            eta.report(completed_bytes, f"completed {schema.path.name}", force=True)  # Preserve forced end-of-file progress output
+    unmet = {class_name: count for class_name, count in remaining_need.items() if count != 0}  # Identify any class quota not satisfied by the complete second pass
+    if unmet:  # Verify if exact class quotas were not fully met
+        raise RuntimeError(f"Exact sampling did not satisfy quotas: {unmet}")  # Preserve the original exact-sampling failure
+    return {
+        "quotas": dict(quotas),
+        "selected_counts": dict(selected_counts),
+        "sample_file": str(out_gz),
+        "sample_rows": int(sum(selected_counts.values())),
+    }  # Return the same second-pass report fields as the supplied implementation
