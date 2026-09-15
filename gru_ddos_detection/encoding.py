@@ -119,3 +119,24 @@ def fit_sample_encoders(sample_gz: Path, chunksize: int, total_rows: int, out_di
 
     unique, unique_labels = collect_vocabularies(sample_gz, chunksize, total_rows)  # Scan the sampled dataset for complete encoder vocabularies
     return build_encoders(unique, unique_labels, out_dir)  # Fit, validate, persist, and return the encoder objects
+
+
+def encode_feature_block(chunk: pd.DataFrame, feature_encoders: Mapping[str, LabelEncoder]) -> np.ndarray:
+    """
+    Encode one sampled DataFrame chunk into the ordered float32 top-20 feature matrix.
+
+    :param chunk: Sampled selected-feature DataFrame chunk.
+    :param feature_encoders: Fitted categorical feature encoders by canonical feature name.
+    :return: Float32 encoded feature matrix for the current chunk.
+    """
+
+    block = np.empty((len(chunk), len(PAPER_TOP20)), dtype=np.float32)  # Allocate the exact output block shape and dtype once
+    for feature_index, column in enumerate(PAPER_TOP20):  # Encode selected features in the published order
+        if column in CATEGORICAL_SELECTED:  # Verify if this feature requires its fitted LabelEncoder
+            block[:, feature_index] = feature_encoders[column].transform(chunk[column].astype("string")).astype(np.float32)  # Preserve categorical integer encoding converted to float32 model features
+        else:  # Handle numeric selected features
+            values = pd.to_numeric(chunk[column], errors="raise").to_numpy(dtype=np.float32, copy=False)  # Preserve strict downstream numeric conversion
+            if not np.isfinite(values).all():  # Verify if cleaning unexpectedly allowed a non-finite numeric selected value
+                raise RuntimeError(f"Non-finite value survived cleaning in {column}")  # Preserve the original defensive failure
+            block[:, feature_index] = values  # Copy numeric feature values into the correct published feature column
+    return block  # Return the encoded feature block aligned with current sampled rows
