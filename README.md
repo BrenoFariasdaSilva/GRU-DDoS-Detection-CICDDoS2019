@@ -376,3 +376,16 @@ GRU-DDoS-Detection-CICDDoS2019/
 ```
 
 `main.py` remains the orchestrator. It now configures the repository-root `Logger.py`, registers the bundled completion sound with `atexit`, parses and validates the CLI, and delegates to the package workflow. Dataset preparation, model construction, training, evaluation, and paper-audit logic remain modular.
+
+## Requirements
+
+- Python **3.11 or 3.12**.
+- GNU Make or a compatible `make` implementation.
+- CICDDoS2019 available locally.
+- macOS Apple Silicon or Linux.
+- For Linux GPU execution: a working NVIDIA driver visible to TensorFlow.
+- Sufficient storage for the compressed sampled CSV, encoded memory-mapped arrays, standardized splits, model checkpoints, predictions, reports, and logs.
+- macOS completion playback uses the built-in `afplay` command.
+- Linux completion playback optionally uses `aplay`; missing utilities or headless audio devices do not fail the experiment.
+
+The platform-aware `requirements.txt` installs TensorFlow 2.18.1, `tensorflow-metal` 1.2.0 on Apple Silicon, TensorFlow CUDA user-space dependencies on Linux x86_64, NumPy, pandas, scikit-learn, matplotlib, joblib, and psutil. `Logger.py` and sound playback use only the Python standard library and operating-system commands.
