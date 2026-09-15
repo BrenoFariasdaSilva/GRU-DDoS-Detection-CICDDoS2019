@@ -546,3 +546,27 @@ metrics.json
 test_predictions.csv
 generated_dataset/
 ```
+
+## Reproducibility Notes and Limitations
+
+The paper provides many hyperparameters, but an exact independent reproduction is still not guaranteed. Important unresolved or contradictory items include:
+
+- the exact source-file sampling/downsampling procedure;
+- the exact population used to fit Extra Trees;
+- the prose class list versus the labels visible in Figure 6(c);
+- sequence/window length, stride, ordering, overlap, and grouping;
+- dropout rate and exact placement;
+- random seeds;
+- stratification;
+- StandardScaler fitting scope;
+- how validation data were created despite the reported 70/30 train/test split;
+- multiclass F1 averaging convention;
+- number of independent runs;
+- whether cross-validation was actually executed for the reported GRU result;
+- software/CUDA/cuDNN versions.
+
+The repository records these distinctions in `reconstruction_assumptions.json`.
+
+The project also persists `paper_internal_consistency_audit.json`, which recomputes metrics from the transcribed Figure 6(c) GRU confusion matrix. This is intentionally separate from the model's own generated metrics so that publication-level values and reproduction results are not conflated.
+
+For the matrix currently transcribed in the project, the 755,755 cells contain 737,109 correct predictions, corresponding to **97.5328% accuracy**; its macro F1 is approximately **0.89917** and weighted F1 approximately **0.96587**. These values do not match Table 4's 99.54% accuracy / 98% F1, so the project reports the discrepancy explicitly rather than treating the matrix and table as the same result.
