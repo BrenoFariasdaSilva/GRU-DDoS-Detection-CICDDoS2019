@@ -581,3 +581,8 @@ Paper-reported F1     = 98% (represented as target 0.9800)
 ```
 
 Because the publication does not state the multiclass F1 averaging convention, each run records macro, weighted, and micro F1.
+
+## References
+
+1. M. Ramzan, M. Shoaib, A. Altaf, S. Arshad, F. Iqbal, Á. Kuc Castilla, and I. Ashraf, “Distributed Denial of Service Attack Detection in Network Traffic Using Deep Learning Algorithm,” *Sensors*, vol. 23, no. 20, article 8642, 2023. [https://doi.org/10.3390/s23208642](https://doi.org/10.3390/s23208642)
+2. Canadian Institute for Cybersecurity, University of New Brunswick, “DDoS 2019 (CICDDoS2019).” [https://www.unb.ca/cic/datasets/ddos-2019.html](https://www.unb.ca/cic/datasets/ddos-2019.html)
