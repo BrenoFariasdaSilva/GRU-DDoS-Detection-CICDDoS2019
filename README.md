@@ -643,3 +643,11 @@ Contributions are welcome when they preserve a clear distinction between **paper
     </td>
   </tr>
 </table>
+
+## License
+
+### MIT License
+
+This project is licensed under the [MIT License](LICENSE). It permits use, modification, distribution, sublicensing, and commercial/private use provided that the copyright and permission notice are retained. The software is provided without warranty; see [`LICENSE`](LICENSE) for the complete terms.
+
+The MIT license applies to the code in this repository. The original paper and CICDDoS2019 dataset remain subject to their respective publishers', authors', and dataset providers' terms.
