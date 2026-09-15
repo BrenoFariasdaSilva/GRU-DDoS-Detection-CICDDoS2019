@@ -193,3 +193,53 @@ def load_best_model(model: tf.keras.Model, run_dir: Path) -> tf.keras.Model:
     if best_path.exists():  # Verify if ModelCheckpoint persisted at least one validation-loss improvement
         return tf.keras.models.load_model(best_path)  # Preserve final evaluation from the persisted best checkpoint
     return model  # Retain the fitted in-memory model only if no checkpoint exists
+
+
+def run_experiment(cfg: Config, device: str, X: np.ndarray, y: np.ndarray, out_root: Path, run_index: int) -> Dict[str, object]:
+    """
+    Execute one complete split-through-test-evaluation GRU experiment run.
+
+    :param cfg: Immutable experiment configuration.
+    :param device: TensorFlow device selected for training and inference.
+    :param X: Complete encoded sampled feature matrix.
+    :param y: Complete encoded sampled integer-label vector.
+    :param out_root: Root generated-output directory for all runs.
+    :param run_index: One-based repeated-run index.
+    :return: Scalar metrics dictionary for the completed run.
+    """
+
+    model_seed = cfg.model_seed + run_index - 1  # Preserve per-run model-seed progression
+    run_dir = out_root / f"run_{run_index:02d}_seed_{model_seed}"  # Preserve the original per-run directory naming convention
+    run_dir.mkdir(parents=True, exist_ok=True)  # Ensure the current run directory exists before artifact writes
+    print("\n" + "=" * 100)  # Preserve the original run separator line
+    print(f"[RUN {run_index}/{cfg.runs}] model_seed={model_seed} split_seed={cfg.split_seed + run_index - 1}")  # Preserve run seed diagnostics
+    print("=" * 100)  # Preserve the original closing run separator line
+    set_seeds(model_seed)  # Apply Python, NumPy, and TensorFlow seeds before split/model work
+    X_train, X_test, y_train, y_test, y_train_onehot, y_test_onehot = split_and_scale(X, y, cfg, run_index, run_dir)  # Execute the preserved 70/30 split and scaling pipeline
+    print(f"[SPLIT] train={len(y_train):,} (70%) test={len(y_test):,} (30%)")  # Preserve split-size reporting
+    print(f"[MEMORY] X_train={human_bytes(X_train.nbytes)} X_test={human_bytes(X_test.nbytes)}")  # Preserve standardized recurrent-array memory reporting
+    test_support = Counter(PAPER_FIGURE6_CLASSES[class_id] for class_id in y_test.tolist())  # Count final test labels using canonical class names
+    json_dump(run_dir / "test_class_support.json", dict(test_support))  # Preserve the per-run test support artifact
+    X_fit, y_fit_onehot, X_validation, y_validation_onehot = select_validation_data(
+        X_train, X_test, y_train, y_train_onehot, y_test_onehot, cfg, run_index, run_dir
+    )  # Construct high-fidelity or rigorous validation arrays without altering the final test partition
+    train_dataset = make_dataset(X_fit, y_fit_onehot, cfg.batch_size, True, model_seed)  # Build the original bounded-shuffle training dataset
+    validation_dataset = make_dataset(X_validation, y_validation_onehot, cfg.batch_size, False, model_seed)  # Build unshuffled validation batches
+    test_dataset = make_dataset(X_test, y_test_onehot, cfg.batch_size, False, model_seed)  # Build unshuffled final test batches
+    model = build_and_save_model(cfg, device, run_dir)  # Build the GRU on the selected device and persist its summary
+    callbacks = build_callbacks(cfg, run_dir)  # Build callbacks in the original order and configuration
+    history, train_seconds = fit_model(model, train_dataset, validation_dataset, cfg, device, callbacks)  # Train with validation and early stopping exactly as supplied
+    model = load_best_model(model, run_dir)  # Reload the best validation-loss checkpoint before final prediction when available
+    probabilities, y_pred = predict_with_eta(model, test_dataset, len(y_test), cfg.batch_size, device)  # Predict final test probabilities in explicit ETA-reporting batches
+    metrics = compute_metrics(y_test, y_pred, cfg, run_index, train_seconds, len(history.history.get("loss", [])))  # Compute the supplied scalar metric set and paper-target distances
+    persist_evaluation_artifacts(run_dir, y_test, y_pred, probabilities, metrics)  # Persist all final test evaluation artifacts
+    print(
+        f"[RESULT] accuracy={metrics['accuracy']:.6f} ({metrics['accuracy']*100:.4f}%) | "
+        f"F1_macro={metrics['f1_macro']:.6f} | F1_weighted={metrics['f1_weighted']:.6f} | "
+        f"paper targets: accuracy=0.995400, F1=0.980000"
+    )  # Preserve the original result summary line
+    del X_train, X_test, y_train, y_test, y_train_onehot, y_test_onehot  # Release materialized split arrays after all artifacts are persisted
+    del train_dataset, validation_dataset, test_dataset, model, probabilities, y_pred  # Release TensorFlow datasets, model, and prediction arrays
+    gc.collect()  # Preserve explicit Python garbage collection between runs
+    tf.keras.backend.clear_session()  # Preserve Keras backend cleanup between repeated runs
+    return metrics  # Return scalar metrics for cross-run aggregation
