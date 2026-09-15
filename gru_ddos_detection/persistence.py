@@ -49,3 +49,19 @@ def json_dump(path: Path, obj: object) -> None:
     """
 
     path.write_text(json.dumps(obj, indent=2, ensure_ascii=False), encoding="utf-8")  # Preserve the original UTF-8 JSON formatting
+
+
+def raw_snapshot(root: Path) -> Dict[str, Dict[str, int]]:
+    """
+    Snapshot size and nanosecond modification time for every raw CSV under a root.
+
+    :param root: Raw CICDDoS2019 root directory.
+    :return: Mapping from relative CSV path to size and mtime_ns metadata.
+    """
+
+    snapshot: Dict[str, Dict[str, int]] = {}  # Collect metadata keyed by paths relative to the raw dataset root
+    for path in sorted(root.rglob("*.csv")):  # Traverse every raw CSV in deterministic path order
+        if path.is_file():  # Verify if the discovered path is a regular file
+            stat = path.stat()  # Read filesystem metadata without opening the CSV for writing
+            snapshot[str(path.relative_to(root))] = {"size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)}  # Preserve the original integrity fields
+    return snapshot  # Return the complete raw-source metadata snapshot
