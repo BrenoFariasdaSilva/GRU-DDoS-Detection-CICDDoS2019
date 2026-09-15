@@ -104,3 +104,47 @@ def predict_with_eta(model: tf.keras.Model, test_dataset: tf.data.Dataset, test_
     all_probabilities = np.concatenate(probability_parts, axis=0)  # Reassemble prediction rows in test-dataset order
     predictions = all_probabilities.argmax(axis=1).astype(np.int16)  # Preserve integer class selection and output dtype
     return all_probabilities, predictions  # Return probabilities and predicted class IDs for metrics/artifacts
+
+
+def compute_metrics(y_test: np.ndarray, y_pred: np.ndarray, cfg: Config, run_index: int, train_seconds: float, epochs_completed: int) -> Dict[str, object]:
+    """
+    Compute scalar test metrics and distances to the paper targets for one run.
+
+    :param y_test: Integer ground-truth labels for the final test partition.
+    :param y_pred: Integer predicted labels aligned with y_test.
+    :param cfg: Immutable experiment configuration.
+    :param run_index: One-based repeated-run index.
+    :param train_seconds: Completed model-fit wall-clock duration.
+    :param epochs_completed: Number of epochs actually completed before stopping.
+    :return: Metrics dictionary matching the supplied main.py fields.
+    """
+
+    accuracy = float(accuracy_score(y_test, y_pred))  # Compute final test accuracy once for reporting and target distance
+    f1_macro = float(f1_score(y_test, y_pred, average="macro", zero_division=0))  # Compute unweighted multiclass F1
+    f1_weighted = float(f1_score(y_test, y_pred, average="weighted", zero_division=0))  # Compute support-weighted multiclass F1
+    model_seed = cfg.model_seed + run_index - 1  # Preserve per-run model-seed progression in metrics metadata
+    split_seed = cfg.split_seed + run_index - 1  # Preserve per-run split-seed progression in metrics metadata
+    return {
+        "accuracy": accuracy,
+        "precision_macro": float(precision_score(y_test, y_pred, average="macro", zero_division=0)),
+        "recall_macro": float(recall_score(y_test, y_pred, average="macro", zero_division=0)),
+        "f1_macro": f1_macro,
+        "precision_weighted": float(precision_score(y_test, y_pred, average="weighted", zero_division=0)),
+        "recall_weighted": float(recall_score(y_test, y_pred, average="weighted", zero_division=0)),
+        "f1_weighted": f1_weighted,
+        "f1_micro": float(f1_score(y_test, y_pred, average="micro", zero_division=0)),
+        "paper_target_accuracy": PAPER_TARGET_ACCURACY,
+        "paper_target_f1": PAPER_TARGET_F1,
+        "distance_accuracy": abs(accuracy - PAPER_TARGET_ACCURACY),
+        "distance_f1_macro": abs(f1_macro - PAPER_TARGET_F1),
+        "distance_f1_weighted": abs(f1_weighted - PAPER_TARGET_F1),
+        "training_seconds": train_seconds,
+        "epochs_completed": epochs_completed,
+        "epochs_requested": cfg.epochs,
+        "run": run_index,
+        "model_seed": model_seed,
+        "split_seed": split_seed,
+        "validation_mode": cfg.validation_mode,
+        "scaling_mode": cfg.scaling_mode,
+        "stratify": cfg.stratify,
+    }  # Preserve the supplied per-run metrics field names and meanings
