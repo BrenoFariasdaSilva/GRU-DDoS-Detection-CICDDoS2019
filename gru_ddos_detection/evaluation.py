@@ -78,3 +78,29 @@ def save_confusion(confusion: np.ndarray, labels: Sequence[str], path: Path) -> 
     figure.tight_layout()  # Fit long class labels into the saved figure bounds
     figure.savefig(path, dpi=180)  # Preserve the original PNG resolution
     plt.close(figure)  # Release matplotlib resources after persistence
+
+
+def predict_with_eta(model: tf.keras.Model, test_dataset: tf.data.Dataset, test_rows: int, batch_size: int, device: str) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Predict test probabilities batch by batch while reporting progress ETA.
+
+    :param model: Trained best Keras model used for inference.
+    :param test_dataset: Batched final test dataset.
+    :param test_rows: Number of final test observations.
+    :param batch_size: Configured inference batch size.
+    :param device: TensorFlow device selected for model execution.
+    :return: Concatenated probability matrix and integer predicted class IDs.
+    """
+
+    probability_parts: List[np.ndarray] = []  # Collect per-batch prediction arrays before final concatenation
+    total_batches = math.ceil(test_rows / batch_size)  # Preserve the original expected prediction batch count
+    prediction_eta = create_eta("PREDICT", total_batches)  # Initialize the original prediction ETA reporter
+    for batch_index, (features, _) in enumerate(test_dataset, 1):  # Iterate final test batches in deterministic dataset order
+        with tf.device(device):  # Preserve explicit model inference device placement
+            probabilities = model(features, training=False).numpy()  # Execute direct inference without model.predict opacity
+        probability_parts.append(probabilities)  # Preserve each prediction block for final row-order concatenation
+        prediction_eta.report(batch_index, f"batch={batch_index}/{total_batches}")  # Preserve the original prediction progress detail
+    prediction_eta.report(total_batches, "prediction complete", force=True)  # Preserve the forced prediction completion message
+    all_probabilities = np.concatenate(probability_parts, axis=0)  # Reassemble prediction rows in test-dataset order
+    predictions = all_probabilities.argmax(axis=1).astype(np.int16)  # Preserve integer class selection and output dtype
+    return all_probabilities, predictions  # Return probabilities and predicted class IDs for metrics/artifacts
