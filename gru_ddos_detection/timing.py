@@ -87,3 +87,14 @@ def human_bytes(byte_count: float) -> str:
             return f"{value:.2f} {unit}"  # Return the original two-decimal size format
         value /= 1024.0  # Convert the value to the next binary unit
     return f"{value:.2f} TiB"  # Preserve the defensive final fallback from the supplied implementation
+
+
+@dataclass
+class ETA:
+    """Store generic progress-reporting state for one long-running stage."""
+
+    label: str
+    total: float
+    started: float
+    last_print: float
+
