@@ -570,3 +570,14 @@ The repository records these distinctions in `reconstruction_assumptions.json`.
 The project also persists `paper_internal_consistency_audit.json`, which recomputes metrics from the transcribed Figure 6(c) GRU confusion matrix. This is intentionally separate from the model's own generated metrics so that publication-level values and reproduction results are not conflated.
 
 For the matrix currently transcribed in the project, the 755,755 cells contain 737,109 correct predictions, corresponding to **97.5328% accuracy**; its macro F1 is approximately **0.89917** and weighted F1 approximately **0.96587**. These values do not match Table 4's 99.54% accuracy / 98% F1, so the project reports the discrepancy explicitly rather than treating the matrix and table as the same result.
+
+## Results Target
+
+The repository does not force the published values. It measures how closely an independent reconstruction approaches them.
+
+```text
+Paper target accuracy = 0.9954
+Paper-reported F1     = 98% (represented as target 0.9800)
+```
+
+Because the publication does not state the multiclass F1 averaging convention, each run records macro, weighted, and micro F1.
