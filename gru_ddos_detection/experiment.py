@@ -124,3 +124,32 @@ def build_and_save_model(cfg: Config, device: str, run_dir: Path) -> tf.keras.Mo
     with (run_dir / "model_summary.txt").open("w", encoding="utf-8") as handle:  # Open the original model summary artifact path
         model.summary(print_fn=partial(write_model_summary_line, handle))  # Persist Keras model summary without an untyped lambda
     return model  # Return the compiled model for dataset fitting
+
+
+def build_callbacks(cfg: Config, run_dir: Path) -> List[tf.keras.callbacks.Callback]:
+    """
+    Build Keras callbacks in the same order and configuration as the supplied implementation.
+
+    :param cfg: Immutable experiment configuration containing early-stopping settings.
+    :param run_dir: Current run directory receiving checkpoint and history artifacts.
+    :return: Ordered list of Keras callbacks for model.fit().
+    """
+
+    return [
+        tf.keras.callbacks.EarlyStopping(
+            monitor="val_loss",
+            min_delta=cfg.early_min_delta,
+            patience=cfg.early_patience,
+            restore_best_weights=True,
+            verbose=1,
+        ),
+        tf.keras.callbacks.ModelCheckpoint(
+            str(run_dir / "best_model.keras"),
+            monitor="val_loss",
+            mode="min",
+            save_best_only=True,
+            verbose=1,
+        ),
+        tf.keras.callbacks.CSVLogger(str(run_dir / "training_history.csv")),
+        create_epoch_eta(cfg.epochs),
+    ]  # Preserve callback order: early stopping, best checkpoint, CSV history, then epoch ETA
