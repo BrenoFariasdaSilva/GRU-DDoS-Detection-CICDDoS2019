@@ -57,3 +57,14 @@ class FileSchema:
     label_col: str
     selected_actual: Mapping[str, str]
     validity_cols: Tuple[str, ...]
+
+
+def normalize_token(value: object) -> str:
+    """
+    Normalize a raw label token to uppercase alphanumeric form.
+
+    :param value: Raw label-like value to normalize.
+    :return: Uppercase alphanumeric token used for alias lookup.
+    """
+
+    return re.sub(r"[^A-Z0-9]+", "", str(value).strip().upper())  # Preserve the original label token normalization regex
