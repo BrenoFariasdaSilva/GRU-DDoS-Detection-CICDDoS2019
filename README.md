@@ -126,3 +126,36 @@ The paper describes the following high-level methodology for the CICDDoS2019 rec
 13. Evaluate accuracy, precision, recall, F1, and confusion matrices.
 
 The paper does not explicitly define all implementation details required to replay those steps bit-for-bit; the next section documents how this repository resolves them.
+
+## Reconstruction Methodology
+
+| Item | Publication status | Project implementation |
+| --- | --- | --- |
+| Dataset | Given | CICDDoS2019. |
+| Source day/files | Not fully specified for the exact reported run | Defaults to `01-12`, which contains the Figure 6(c) target classes used by the reproduction. |
+| Missing/null handling | Given | Invalid rows are removed during streamed cleaning. |
+| Infinity handling | Not specified | Non-finite numeric values are rejected as invalid. |
+| Categorical inputs | General numerical encoding described | `LabelEncoder` for `Timestamp` and `Flow ID`. |
+| Output labels | One-hot encoding described | Label IDs are encoded and converted to one-hot arrays before model fitting. |
+| Feature selection | Extra Trees + final top 20 given | The final published top-20 list is used directly; the project does not refit Extra Trees for the final model. |
+| Split | 70/30 given | `train_test_split(..., test_size=0.30)`. |
+| Split seed | Missing | Default `42`. |
+| Stratification | Missing | High-fidelity command uses `--no-stratify`; stratification remains available. |
+| StandardScaler | Given | `separate` mode fits train and test scalers independently for the high-fidelity reconstruction; `train-only` is available for rigorous evaluation. |
+| GRU layers | Given | 2. |
+| GRU units | Given | 8 + 8. |
+| Dense hidden layers | Given | 16 + 8. |
+| Input sequence construction | Missing | Reshape `(N, 20)` to `(N, 1, 20)`. |
+| Dropout | Usage reported, rate/placement missing | `0.10` after each GRU by default. |
+| Optimizer | Given | Adam. |
+| Learning rate | Given | `0.001`. |
+| Loss | Given | Categorical cross-entropy. |
+| Batch size | Given | `1000` in the paper-faithful Linux command. |
+| Maximum epochs | Given | `100`. |
+| Early stopping | Given | `val_loss`, `min_delta=0.001`, `patience=5`. |
+| Validation split | Missing despite validation curves | `validation-mode=test` reproduces the likely test-as-validation behavior; `holdout` provides a rigorous alternative. |
+| Random model seed | Missing | Default `1337`. |
+| Run count / CV | Not reported for the GRU result | Default one independent run; no cross-validation is invented. |
+| F1 averaging | Missing | Macro, weighted, and micro F1 are all reported by the project. |
+
+`scaling-mode=separate` and `validation-mode=test` deliberately remain available because the purpose of the high-fidelity path is to investigate the historical result. They are methodologically leaky and should not be interpreted as recommended practice for a new experiment.
