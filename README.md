@@ -159,3 +159,57 @@ The paper does not explicitly define all implementation details required to repl
 | F1 averaging | Missing | Macro, weighted, and micro F1 are all reported by the project. |
 
 `scaling-mode=separate` and `validation-mode=test` deliberately remain available because the purpose of the high-fidelity path is to investigate the historical result. They are methodologically leaky and should not be interpreted as recommended practice for a new experiment.
+
+## Pipeline
+
+```mermaid
+flowchart TD
+    A[CICDDoS2019<br/>source day 01-12] --> B[Discover source CSV files]
+    B --> C[PASS 1<br/>stream, clean, count valid class rows]
+    C --> D{Sampling profile}
+    D -->|cap-per-class| E[Bounded per-class sample]
+    D -->|figure6-inferred| F[Figure 6(c)-inferred quotas]
+    D -->|all| G[Every cleaned target-class row]
+    E --> H[PASS 2<br/>exact hypergeometric sampling]
+    F --> H
+    G --> H
+    H --> I[sampled_selected_top20.csv.gz]
+    I --> J[LabelEncoder fit<br/>categorical features + output]
+    J --> K[encoded_sample_X.npy<br/>encoded_sample_y.npy]
+    K --> L[70% train / 30% test]
+    L --> M[StandardScaler]
+    M --> N[Reshape to N × 1 × 20]
+    N --> O[GRU 8<br/>return sequences]
+    O --> P[Dropout 0.10]
+    P --> Q[GRU 8]
+    Q --> R[Dropout 0.10]
+    R --> S[Dense 16 + ReLU]
+    S --> T[Dense 8 + ReLU]
+    T --> U[Dense 12 + Softmax]
+    U --> V[Adam 0.001<br/>categorical cross-entropy]
+    V --> W[Early stopping on val_loss]
+    W --> X[Final test prediction + metrics]
+```
+
+Compact representation:
+
+```text
+CICDDoS2019
+→ clean invalid/null records
+→ published top-20 features
+→ exact streamed sampling
+→ LabelEncoder / output encoding
+→ 70/30 split
+→ StandardScaler
+→ reshape (N, 1, 20)
+→ GRU(8)
+→ Dropout(0.10)
+→ GRU(8)
+→ Dropout(0.10)
+→ Dense(16, ReLU)
+→ Dense(8, ReLU)
+→ Dense(12, Softmax)
+→ Adam 0.001 + categorical cross-entropy
+→ early stopping
+→ test metrics and confusion matrix
+```
