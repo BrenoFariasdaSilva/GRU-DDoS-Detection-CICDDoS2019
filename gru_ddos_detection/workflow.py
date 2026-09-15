@@ -177,3 +177,32 @@ def discover_and_sample(args: argparse.Namespace, sample_gz: Path, sample_report
     ))  # Execute exact second-pass hypergeometric sampling and merge its report fields
     json_dump(sample_report_path, sample_report)  # Persist the complete sampling report after successful exact sampling
     return int(sum(quotas.values())), sample_report  # Return exact row count for encoder-array allocation plus the completed report
+
+
+def build_encoded_cache(args: argparse.Namespace, x_cache: Path, y_cache: Path, sample_gz: Path, sample_report_path: Path) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Build the sampled compressed dataset, fit encoders, and create encoded NumPy caches.
+
+    :param args: Validated command-line namespace controlling dataset preparation.
+    :param x_cache: Destination encoded_sample_X.npy path.
+    :param y_cache: Destination encoded_sample_y.npy path.
+    :param sample_gz: Destination sampled_selected_top20.csv.gz path.
+    :param sample_report_path: Destination sampling_report.json path.
+    :return: Read-only memory-mapped encoded feature and label arrays.
+    """
+
+    total_rows, _ = discover_and_sample(args, sample_gz, sample_report_path)  # Build exact compressed sampled selected-feature dataset first
+    encoder_dir = args.output_dir / "encoders"  # Resolve the original encoder artifact directory
+    encoder_dir.mkdir(parents=True, exist_ok=True)  # Ensure the encoder directory exists before joblib persistence
+    feature_encoders, label_encoder = fit_sample_encoders(sample_gz, args.chunksize, total_rows, encoder_dir)  # Fit and persist categorical and output encoders
+    X, y = encode_sample_to_npy(
+        sample_gz,
+        args.chunksize,
+        total_rows,
+        feature_encoders,
+        label_encoder,
+        x_cache,
+        y_cache,
+    )  # Stream the sampled dataset into the original disk-backed encoded cache files
+    json_dump(encoder_dir / "output_class_order.json", label_encoder.classes_.tolist())  # Preserve encoded canonical class-order artifact
+    return X, y  # Return memory-mapped encoded arrays for validation and repeated runs
