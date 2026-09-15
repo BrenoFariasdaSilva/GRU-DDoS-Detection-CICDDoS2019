@@ -239,3 +239,32 @@ def validate_encoded_cache(X: np.ndarray, y: np.ndarray) -> None:
         raise RuntimeError(f"Invalid encoded cache shapes X={X.shape}, y={y.shape}")  # Preserve the original malformed-cache failure
     if set(np.unique(np.asarray(y)).tolist()) != set(range(12)):  # Verify if every expected encoded class ID is present
         raise RuntimeError(f"Encoded data does not contain all 12 classes: {np.unique(y)}")  # Preserve the original incomplete-class failure
+
+
+def run_all_experiments(cfg: Config, device: str, X: np.ndarray, y: np.ndarray, output_dir: Path) -> List[Dict[str, object]]:
+    """
+    Execute all configured repeated GRU runs and report remaining-run ETA.
+
+    :param cfg: Immutable experiment configuration.
+    :param device: TensorFlow device selected for training and prediction.
+    :param X: Complete encoded sampled feature matrix.
+    :param y: Complete encoded sampled integer-label vector.
+    :param output_dir: Root generated-output directory for all run subdirectories.
+    :return: Ordered list of per-run metrics dictionaries.
+    """
+
+    results: List[Dict[str, object]] = []  # Collect completed run metric dictionaries in execution order
+    runs_started = time.time()  # Start cross-run elapsed-time measurement immediately before the first run
+    for run_index in range(1, cfg.runs + 1):  # Execute each requested run using one-based numbering
+        run_started = time.time()  # Start wall-clock timing for the current individual run
+        result = run_experiment(cfg, device, X, y, output_dir, run_index)  # Execute one full split-through-final-test experiment
+        results.append(result)  # Preserve completed run metrics for summary aggregation
+        completed = run_index  # Preserve original completed-run count calculation
+        elapsed = time.time() - runs_started  # Measure total elapsed duration across completed runs
+        average = elapsed / completed  # Preserve the original elapsed/completed average formula
+        eta_runs = (cfg.runs - completed) * average  # Estimate remaining repeated-run duration from average completed time
+        print(
+            f"[ETA][RUNS] completed={completed}/{cfg.runs} | last_run={format_seconds(time.time()-run_started)} "
+            f"| avg_run={format_seconds(average)} | remaining_ETA={format_seconds(eta_runs)}"
+        )  # Preserve the original cross-run ETA message and fields
+    return results  # Return per-run metrics for summary persistence
