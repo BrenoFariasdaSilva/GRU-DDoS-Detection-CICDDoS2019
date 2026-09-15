@@ -82,3 +82,26 @@ def split_run_arrays(X: np.ndarray, y: np.ndarray, cfg: Config, run_index: int, 
     y_train = np.asarray(y[train_indices], dtype=np.int16)  # Materialize aligned training labels as int16
     y_test = np.asarray(y[test_indices], dtype=np.int16)  # Materialize aligned test labels as int16
     return X_train, X_test, y_train, y_test  # Return split arrays before standardization
+
+
+def standardize_run_arrays(X_train: np.ndarray, X_test: np.ndarray, cfg: Config, run_dir: Path) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Standardize train and test features according to the configured scaler-fitting mode.
+
+    :param X_train: Materialized unstandardized training feature matrix.
+    :param X_test: Materialized unstandardized test feature matrix.
+    :param cfg: Immutable experiment configuration controlling scaling mode.
+    :param run_dir: Directory receiving persisted scaler objects.
+    :return: Standardized float32 training and test feature matrices.
+    """
+
+    train_scaler = StandardScaler()  # Create the same scikit-learn standard scaler used by the supplied implementation
+    standardized_train = train_scaler.fit_transform(X_train).astype(np.float32, copy=False)  # Fit on training features and standardize training data
+    joblib.dump(train_scaler, run_dir / "standard_scaler_train.joblib")  # Preserve the original training-scaler artifact
+    if cfg.scaling_mode == "separate":  # Verify if high-fidelity separate test scaling was requested
+        test_scaler = StandardScaler()  # Create an independent test-set scaler as in the supplied reconstruction mode
+        standardized_test = test_scaler.fit_transform(X_test).astype(np.float32, copy=False)  # Fit and transform the test partition independently
+        joblib.dump(test_scaler, run_dir / "standard_scaler_test.joblib")  # Preserve the original separate test-scaler artifact
+    else:  # Handle rigorous train-only scaler fitting
+        standardized_test = train_scaler.transform(X_test).astype(np.float32, copy=False)  # Apply training statistics to the test partition without refitting
+    return standardized_train, standardized_test  # Return float32 standardized train/test features
