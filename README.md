@@ -480,3 +480,27 @@ At interpreter shutdown, `atexit` invokes `.assets/Sounds/NotificationSound.wav`
 - `aplay -q` on Linux.
 
 The sound is attempted on successful completion and on exits caused by an exception or CLI termination. Playback is deliberately non-fatal: an unavailable Linux audio command, a headless server, or a missing audio device produces only a log warning and never changes the experiment result or exit status.
+
+## Configuration
+
+Important CLI controls include:
+
+| Option | Purpose |
+| --- | --- |
+| `--data-dir` | Read-only CICDDoS2019 root. |
+| `--output-dir` | Project-local generated output directory. |
+| `--source-day` | `01-12`, `03-11`, or `both`. |
+| `--sampling-profile` | `figure6-inferred`, `cap-per-class`, or `all`. |
+| `--per-class-cap` | Limit used by `cap-per-class`. |
+| `--chunksize` | Streamed CSV chunk size. |
+| `--data-seed` | Exact sampling random seed. |
+| `--split-seed` | 70/30 split random seed. |
+| `--model-seed` | TensorFlow/model random seed. |
+| `--batch-size` | Training batch size. |
+| `--validation-mode` | `test` or rigorous `holdout`. |
+| `--scaling-mode` | `separate` or rigorous `train-only`. |
+| `--no-stratify` | Disable split stratification. |
+| `--reuse-cache` | Reuse `encoded_sample_X.npy`/`encoded_sample_y.npy`. |
+| `--allow-cpu` | Permit execution without a detected TensorFlow GPU. |
+
+Run `python main.py --help` for all model and early-stopping options.
