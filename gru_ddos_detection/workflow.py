@@ -134,3 +134,46 @@ def persist_paper_metadata(cfg: Config, output_dir: Path) -> None:
     )  # Report the computed matrix values and published Table 4 targets without conflating them
     json_dump(output_dir / "reconstruction_assumptions.json", build_reconstruction_assumptions(cfg))  # Persist the original assumptions/missing-information structure
     json_dump(output_dir / "published_top20_features.json", list(PAPER_TOP20))  # Preserve the published selected-feature artifact
+
+
+def discover_and_sample(args: argparse.Namespace, sample_gz: Path, sample_report_path: Path) -> Tuple[int, Dict[str, object]]:
+    """
+    Discover source files, count valid rows, determine quotas, and write the exact disk sample.
+
+    :param args: Validated command-line namespace controlling source discovery and sampling.
+    :param sample_gz: Destination compressed selected-feature sample path.
+    :param sample_report_path: Destination sampling_report.json path.
+    :return: Exact sampled row count and completed sampling report dictionary.
+    """
+
+    source_files = find_source_csvs(args.data_dir, args.source_day)  # Discover the configured CICDDoS2019 source-day CSV files
+    print(f"[DATA] Source day={args.source_day}; discovered {len(source_files)} CSV files.")  # Preserve source discovery summary
+    for path in source_files:  # Report each discovered source path in deterministic order
+        print("       ", path.relative_to(args.data_dir))  # Preserve the original indented relative-path output
+    (args.output_dir / "source_csv_files.txt").write_text(
+        "\n".join(str(path.relative_to(args.data_dir)) for path in source_files), encoding="utf-8"
+    )  # Preserve the original source inventory filename and contents
+    schemas = inspect_schemas(source_files)  # Validate labels and published top-20 feature availability in every source file
+    counts, count_report = count_valid_rows(schemas, args.data_dir, args.chunksize)  # Execute the first pass over cleaned source rows
+    quotas = determine_quotas(counts, args.sampling_profile, args.per_class_cap)  # Resolve exact class quotas from the configured sampling profile
+    print("[DATA] Valid target rows:", dict(counts))  # Preserve cleaned source population diagnostics
+    print("[DATA] Sampling quotas:", quotas)  # Preserve actual class-quota diagnostics
+    print(f"[DATA] Total local derived sample rows: {sum(quotas.values()):,}")  # Preserve derived sample-size diagnostics
+    sample_report: Dict[str, object] = {
+        "count_pass": count_report,
+        "sampling_profile": args.sampling_profile,
+        "figure6_test_support": PAPER_FIGURE6_TEST_SUPPORT,
+        "figure6_inferred_70plus30_source_quotas": FIGURE6_INFERRED_CLASS_QUOTAS,
+        "actual_quotas": quotas,
+    }  # Build the original pre-second-pass sampling report fields
+    sample_report.update(exact_sample_to_disk(
+        schemas,
+        args.data_dir,
+        args.chunksize,
+        counts,
+        quotas,
+        args.data_seed,
+        sample_gz,
+    ))  # Execute exact second-pass hypergeometric sampling and merge its report fields
+    json_dump(sample_report_path, sample_report)  # Persist the complete sampling report after successful exact sampling
+    return int(sum(quotas.values())), sample_report  # Return exact row count for encoder-array allocation plus the completed report
