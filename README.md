@@ -81,3 +81,9 @@ This repository reconstructs the **CICDDoS2019 multiclass GRU experiment** from 
 The paper evaluates RNN, LSTM, and GRU models for DDoS detection. For CICDDoS2019 multiclass classification, Table 4 reports the GRU as the strongest model in accuracy, with **99.54% accuracy**, **98% precision**, **99% recall**, and **98% F1-score**. The project therefore targets the GRU multiclass configuration rather than the binary experiment or the other recurrent architectures.
 
 The repository separates **paper-specified settings** from **reconstruction choices**. This distinction is important because the publication gives considerably more detail than many related works, but still omits the exact source-row sampling procedure, recurrent sequence construction, dropout rate, validation partition construction, random seeds, scaler fitting scope, and repeated-run protocol.
+
+## Original Paper
+
+> M. Ramzan, M. Shoaib, A. Altaf, S. Arshad, F. Iqbal, Á. Kuc Castilla, and I. Ashraf, “Distributed Denial of Service Attack Detection in Network Traffic Using Deep Learning Algorithm,” *Sensors*, vol. 23, no. 20, article 8642, 2023. DOI: [10.3390/s23208642](https://doi.org/10.3390/s23208642).
+
+The paper uses CICDDoS2019 for training/evaluation and also compares results with CICIDS2017. This repository focuses specifically on reproducing the **CICDDoS2019 GRU multiclass result**.
