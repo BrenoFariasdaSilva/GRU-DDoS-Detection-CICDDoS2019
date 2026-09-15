@@ -242,3 +242,22 @@ The final selected features reproduced by this project are:
 | 20 | act_data_pkt_fwd |
 
 `Timestamp` and `Flow ID` are intentionally retained because the goal is to reproduce the published selected-feature experiment, even though identifier-like fields would normally deserve additional leakage analysis in a new study.
+
+## Target Classes
+
+The reproduction uses the 12 labels visible in the paper's GRU Figure 6(c):
+
+1. `BENIGN`
+2. `DrDoS_DNS`
+3. `DrDoS_LDAP`
+4. `DrDoS_MSSQL`
+5. `DrDoS_NTP`
+6. `DrDoS_NetBIOS`
+7. `DrDoS_SNMP`
+8. `DrDoS_SSDP`
+9. `DrDoS_UDP`
+10. `Syn`
+11. `TFTP`
+12. `UDP-lag`
+
+This class set is important because the prose class description in the publication is not perfectly aligned with the labels visible in the GRU confusion matrix. The reproduction follows the matrix labels for the target experiment.
