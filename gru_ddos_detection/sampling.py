@@ -106,3 +106,37 @@ def count_one_file(schema: FileSchema, root: Path, chunksize: int, eta: ETA, com
             del chunk, labels, valid  # Release large chunk-local objects before the next iteration
             gc.collect()  # Preserve explicit garbage collection used by the supplied memory-safe implementation
     return file_counts, file_omitted  # Return per-file counts for global aggregation and reporting
+
+
+def count_valid_rows(schemas: Sequence[FileSchema], root: Path, chunksize: int) -> Tuple[Counter[str], Dict[str, object]]:
+    """
+    Count all cleaned target rows across source CSVs during the first streaming pass.
+
+    :param schemas: Ordered validated source-file schemas.
+    :param root: Raw dataset root used for relative paths.
+    :param chunksize: Number of source rows read per pandas chunk.
+    :return: Global target counter and detailed first-pass report.
+    """
+
+    total_bytes = sum(schema.path.stat().st_size for schema in schemas)  # Sum source sizes for byte-based pass-one progress
+    completed_bytes = 0  # Track complete source-file bytes already scanned
+    eta = create_eta("PASS1-COUNT", total_bytes)  # Initialize the original pass-one ETA reporter
+    counts: Counter[str] = Counter()  # Accumulate cleaned target populations across all source files
+    omitted: Counter[str] = Counter()  # Accumulate cleaned canonical omitted populations across all source files
+    file_reports: List[Dict[str, object]] = []  # Preserve one detailed count report per source file
+    for file_index, schema in enumerate(schemas, 1):  # Scan source files in their validated deterministic order
+        file_counts, file_omitted = count_one_file(schema, root, chunksize, eta, completed_bytes, file_index, len(schemas))  # Count one source file without loading the corpus at once
+        counts.update(file_counts)  # Merge this file's target counts into the global population
+        omitted.update(file_omitted)  # Merge this file's omitted counts into the global population
+        completed_bytes += schema.path.stat().st_size  # Advance completed-byte accounting after finishing the file
+        eta.report(completed_bytes, f"completed {schema.path.name}", force=True)  # Preserve forced end-of-file progress output
+        file_reports.append({
+            "file": str(schema.path.relative_to(root)),
+            "valid_target_counts": dict(file_counts),
+            "valid_omitted_counts": dict(file_omitted),
+        })  # Preserve the original per-file sampling-audit fields
+    return counts, {
+        "valid_target_counts": dict(counts),
+        "valid_omitted_counts": dict(omitted),
+        "files": file_reports,
+    }  # Return global populations and the complete pass-one audit report
