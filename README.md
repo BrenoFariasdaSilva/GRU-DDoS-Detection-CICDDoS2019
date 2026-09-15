@@ -615,3 +615,18 @@ If you use this repository, cite both the reproduction software and the original
 ```
 
 If you find the repository useful, consider starring it and opening issues or pull requests that improve reproducibility or documentation.
+
+## Contributing
+
+Contributions are welcome when they preserve a clear distinction between **paper-faithful reconstruction** and **methodologically improved alternatives**.
+
+1. Fork the repository and create a focused branch.
+2. Keep paper-derived and inferred settings explicitly separated.
+3. Preserve the existing source/function documentation rules.
+4. Validate both constrained and full-source paths where practical.
+5. Use clear commit messages, for example:
+   - `FEAT: Add ...`
+   - `FIX: Resolve ...`
+   - `DOCS: Update ...`
+   - `REFACTOR: Improve ...`
+6. Open a pull request explaining any scientific or reproducibility impact.
