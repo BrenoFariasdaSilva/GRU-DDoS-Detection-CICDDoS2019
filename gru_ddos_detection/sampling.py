@@ -172,3 +172,25 @@ def determine_quotas(counts: Counter[str], profile: str, per_class_cap: int) -> 
                 f"{available:,} valid rows are available; using all available."
             )  # Preserve the original quota-shortfall warning
     return quotas  # Return actual exact quotas for the second pass
+
+
+def normalize_selected_chunk(chunk: pd.DataFrame, schema: FileSchema, mask: pd.Series, labels: pd.Series) -> pd.DataFrame:
+    """
+    Normalize selected sampled rows into canonical published feature columns plus Label.
+
+    :param chunk: Original source chunk containing selected rows.
+    :param schema: Exact source-column mapping for the current file.
+    :param mask: Boolean mask selecting sampled rows in the chunk.
+    :param labels: Canonical label series aligned with the source chunk.
+    :return: DataFrame containing canonical top-20 columns and Label for selected rows.
+    """
+
+    output = pd.DataFrame(index=chunk.index[mask])  # Create an output frame aligned only to selected source rows
+    for display in PAPER_TOP20:  # Materialize selected features in the published order
+        source = schema.selected_actual[display]  # Resolve the exact source header for the canonical feature
+        if display in CATEGORICAL_SELECTED:  # Verify if the selected feature is categorical in this reconstruction
+            output[display] = chunk.loc[mask, source].astype("string").str.strip()  # Preserve stripped string encoding input values
+        else:  # Handle numeric selected features
+            output[display] = pd.to_numeric(chunk.loc[mask, source], errors="coerce")  # Preserve numeric conversion used by the supplied implementation
+    output["Label"] = labels.loc[mask].astype("string")  # Append canonical labels after the 20 selected features
+    return output.reset_index(drop=True)  # Return compact zero-based sampled rows before CSV persistence
