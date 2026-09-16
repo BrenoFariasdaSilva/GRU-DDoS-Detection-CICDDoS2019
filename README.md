@@ -158,6 +158,8 @@ The paper does not explicitly define all implementation details required to repl
 | Run count / CV | Not reported for the GRU result | Default one independent run; no cross-validation is invented. |
 | F1 averaging | Missing | Macro, weighted, and micro F1 are all reported by the project. |
 
+Source discovery reads only `*.csv` directly inside the selected `01-12` or `03-11` directory (`both` selects both). Generated analysis CSVs in nested directories are excluded from input and raw-source integrity snapshots.
+
 `scaling-mode=separate` and `validation-mode=test` deliberately remain available because the purpose of the high-fidelity path is to investigate the historical result. They are methodologically leaky and should not be interpreted as recommended practice for a new experiment.
 
 ## Pipeline

@@ -10,7 +10,7 @@ Description :
 
     Key features include:
         - Writes UTF-8 JSON artifacts with stable indentation.
-        - Snapshots raw CSV sizes and nanosecond modification times recursively.
+        - Snapshots selected raw CSV sizes and nanosecond modification times.
         - Verifies that raw source metadata is unchanged after experiment execution.
 
 Usage:
@@ -38,6 +38,8 @@ import json
 from pathlib import Path
 from typing import Dict
 
+from .source_files import find_source_csvs
+
 
 def json_dump(path: Path, obj: object) -> None:
     """
@@ -51,19 +53,23 @@ def json_dump(path: Path, obj: object) -> None:
     path.write_text(json.dumps(obj, indent=2, ensure_ascii=False), encoding="utf-8")  # Preserve the original UTF-8 JSON formatting
 
 
-def raw_snapshot(root: Path) -> Dict[str, Dict[str, int]]:
+def raw_snapshot(root: Path, source_day: str) -> Dict[str, Dict[str, int]]:
     """
-    Snapshot size and nanosecond modification time for every raw CSV under a root.
+    Snapshot size and nanosecond modification time for selected raw source CSVs.
 
     :param root: Raw CICDDoS2019 root directory.
+    :param source_day: Source-day selector used for the experiment.
     :return: Mapping from relative CSV path to size and mtime_ns metadata.
     """
 
     snapshot: Dict[str, Dict[str, int]] = {}  # Collect metadata keyed by paths relative to the raw dataset root
-    for path in sorted(root.rglob("*.csv")):  # Traverse every raw CSV in deterministic path order
-        if path.is_file():  # Verify if the discovered path is a regular file
-            stat = path.stat()  # Read filesystem metadata without opening the CSV for writing
-            snapshot[str(path.relative_to(root))] = {"size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)}  # Preserve the original integrity fields
+    try:
+        files = find_source_csvs(root, source_day)  # Use the same ordered source set as schema inspection
+    except FileNotFoundError:
+        files = []  # Preserve empty snapshots when an existing encoded cache avoids raw discovery
+    for path in files:
+        stat = path.stat()  # Read filesystem metadata without opening the CSV for writing
+        snapshot[str(path.relative_to(root))] = {"size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)}  # Preserve the original integrity fields
     return snapshot  # Return the complete raw-source metadata snapshot
 
 

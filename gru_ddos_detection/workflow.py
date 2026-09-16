@@ -307,7 +307,7 @@ def run_workflow(args: argparse.Namespace) -> None:
     cfg = build_config(args)  # Build the immutable runtime configuration after CLI validation
     json_dump(args.output_dir / "config.json", asdict(cfg))  # Persist resolved configuration before runtime processing
     persist_paper_metadata(cfg, args.output_dir)  # Persist and print paper audit/reconstruction metadata before touching training data
-    raw_before = raw_snapshot(args.data_dir)  # Snapshot all raw CSV metadata before accelerator/data processing
+    raw_before = raw_snapshot(args.data_dir, args.source_day)  # Snapshot selected raw source metadata before accelerator/data processing
     json_dump(args.output_dir / "raw_dataset_snapshot_before.json", raw_before)  # Persist the original pre-run raw integrity artifact
     device = configure_accelerator(args.allow_cpu)  # Verify and select GPU or explicitly allowed CPU execution
     json_dump(args.output_dir / "environment.json", environment_info(device))  # Persist environment metadata after device selection
@@ -315,7 +315,7 @@ def run_workflow(args: argparse.Namespace) -> None:
     validate_encoded_cache(X, y)  # Reject malformed or incomplete encoded samples before any model run
     results = run_all_experiments(cfg, device, X, y, args.output_dir)  # Execute every configured GRU run and collect scalar metrics
     aggregate = persist_aggregate_results(results, args.output_dir)  # Persist cross-run summary and aggregate statistics
-    raw_after = raw_snapshot(args.data_dir)  # Snapshot all raw CSV metadata again after every configured run
+    raw_after = raw_snapshot(args.data_dir, args.source_day)  # Snapshot selected raw source metadata again after every configured run
     json_dump(args.output_dir / "raw_dataset_snapshot_after.json", raw_after)  # Persist the original post-run raw integrity artifact
     verify_raw_snapshot(raw_before, raw_after)  # Fail if any raw source size/mtime/path metadata changed during execution
     print("[COMPLETE]", json.dumps(aggregate, indent=2))  # Preserve the original final aggregate completion message

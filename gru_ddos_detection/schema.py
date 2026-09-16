@@ -29,6 +29,7 @@ Dependencies:
     - pandas.
     - Python standard library.
     - gru_ddos_detection.constants.
+    - gru_ddos_detection.source_files.
 
 Assumptions & Notes:
     - Missing/null removal is evaluated across all non-index, non-label source fields before
@@ -47,6 +48,7 @@ import numpy as np
 import pandas as pd
 
 from .constants import BASE_LABEL_ALIASES, CATEGORICAL_SELECTED, PAPER_TOP20
+from .source_files import find_source_csvs as find_source_csvs
 
 
 @dataclass(frozen=True)
@@ -93,31 +95,6 @@ def infer_label(columns: Sequence[str]) -> str:
         if normalize_column(column) == "label":  # Verify if the normalized header identifies the label field
             return column  # Return the exact source header spelling for pandas usecols compatibility
     raise ValueError(f"Could not find Label column in {list(columns)[:20]}")  # Preserve the original missing-label failure
-
-
-def find_source_csvs(data_dir: Path, source_day: str) -> List[Path]:
-    """
-    Discover source CSV files for the configured CICDDoS2019 day selection.
-
-    :param data_dir: Root CICDDoS2019 directory.
-    :param source_day: Source-day selector: 01-12, 03-11, or both.
-    :return: Sorted list of matching source CSV paths.
-    """
-
-    if source_day.lower() == "both":  # Verify if both source days were requested
-        files = sorted(path for path in data_dir.rglob("*.csv") if path.is_file())  # Discover every source CSV recursively
-    else:  # Handle one explicitly requested source day
-        day_dir = data_dir / source_day  # Resolve the conventional direct day subdirectory
-        if day_dir.exists():  # Verify if the requested day exists directly below the dataset root
-            files = sorted(path for path in day_dir.rglob("*.csv") if path.is_file())  # Discover CSVs below the direct day directory
-        else:  # Fall back to matching the day component anywhere in recursive paths
-            files = sorted(
-                path for path in data_dir.rglob("*.csv")
-                if path.is_file() and source_day in path.parts
-            )  # Preserve the supplied fallback day-discovery behavior
-    if not files:  # Verify if discovery produced at least one source CSV
-        raise FileNotFoundError(f"No CSVs found for source day {source_day!r} under {data_dir}")  # Preserve the original discovery failure
-    return files  # Return deterministic source ordering
 
 
 def inspect_schemas(files: Sequence[Path]) -> List[FileSchema]:
