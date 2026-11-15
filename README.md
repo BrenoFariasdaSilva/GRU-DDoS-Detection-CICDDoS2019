@@ -28,7 +28,6 @@ A reproducible, memory-aware reconstruction of the paper's CICDDoS2019 multiclas
 ![GitHub Contributors](https://img.shields.io/github/contributors/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
 ![GitHub Created At](https://img.shields.io/github/created-at/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
 ![wakatime](https://wakatime.com/badge/github/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019.svg)
-[![GitHub Repository Size](https://img.shields.io/github/repo-size/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
 [![Open Issues](https://img.shields.io/github/issues/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019/issues)
 [![Closed Issues](https://img.shields.io/github/issues-closed/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019/issues?q=is%3Aissue+is%3Aclosed)
 [![Open Pull Requests](https://img.shields.io/github/issues-pr/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019/pulls)
