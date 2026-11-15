@@ -32,10 +32,32 @@ A reproducible, memory-aware reconstruction of the paper's CICDDoS2019 multiclas
 </div>
 
 <div align="center">
-  
-![RepoBeats Statistics](https://repobeats.axiom.co/api/embed/1aa1df4d0d9e67c798ca62e117122c24191e4922.svg "Repobeats analytics image")
+
+![GitHub Code Size in Bytes](https://img.shields.io/github/languages/code-size/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub Commits](https://img.shields.io/github/commit-activity/t/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019/main)
+![GitHub Last Commit](https://img.shields.io/github/last-commit/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub Forks](https://img.shields.io/github/forks/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub Language Count](https://img.shields.io/github/languages/count/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub License](https://img.shields.io/github/license/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub Stars](https://img.shields.io/github/stars/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub Contributors](https://img.shields.io/github/contributors/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![GitHub Created At](https://img.shields.io/github/created-at/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+![wakatime](https://wakatime.com/badge/github/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019.svg)
+[![GitHub Repository Size](https://img.shields.io/github/repo-size/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)
+[![Open Issues](https://img.shields.io/github/issues/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019/issues)
+[![Closed Issues](https://img.shields.io/github/issues-closed/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019/issues?q=is%3Aissue+is%3Aclosed)
+[![Open Pull Requests](https://img.shields.io/github/issues-pr/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019/pulls)
+[![Closed Pull Requests](https://img.shields.io/github/issues-pr-closed/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019)](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019/pulls?q=is%3Apr+is%3Aclosed)
+[![Monthly Commits](https://img.shields.io/github/commit-activity/m/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019/main)](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019/commits)
+[![Merged PRs](https://img.shields.io/github/issues-search/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019?query=is%3Apr%20is%3Amerged&label=merged%20PRs&color=blue)](https://github.com/BrenoFariasdaSilva/GRU-DDoS-Detection-CICDDoS2019/pulls?q=is%3Apr+is%3Amerged)
+![Research](https://img.shields.io/badge/Research-Reproduction-7c3aed)
+![Model](https://img.shields.io/badge/Model-GRU-227a7a)
+![Dataset](https://img.shields.io/badge/Dataset-CICDDoS2019-4f6d7a)
+
+![Repobeats Statistics](https://repobeats.axiom.co/api/embed/1aa1df4d0d9e67c798ca62e117122c24191e4922.svg)
 
 </div>
+
 
 ## Table of Contents
 
